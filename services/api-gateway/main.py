@@ -59,20 +59,21 @@ app.add_middleware(
 
 
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """Health check for all services"""
     services = {
         "api-gateway": "healthy",
-        "agent-orchestrator": await check_service(AGENT_ORCHESTRATOR_URL),
-        "rules-engine": await check_service(RULES_ENGINE_URL),
-        "mcp-github": await check_service(MCP_GITHUB_URL),
-        "mcp-gitlab": await check_service(MCP_GITLAB_URL),
+        "agent-orchestrator": await check_service(f"{AGENT_ORCHESTRATOR_URL}/health"),
+        "rules-engine": await check_service(f"{RULES_ENGINE_URL}/health"),
+        "mcp-github": await check_service(f"{MCP_GITHUB_URL}/health"),
+        "mcp-gitlab": await check_service(f"{MCP_GITLAB_URL}/health"),
         "ollama": await check_service(f"{OLLAMA_URL}/api/tags"),
-        "code-indexer": await check_service(CODE_INDEXER_URL),
-        "rag-chat": await check_service(RAG_CHAT_URL),
+        "code-indexer": await check_service(f"{CODE_INDEXER_URL}/health"),
+        "rag-chat": await check_service(f"{RAG_CHAT_URL}/health"),
         "qdrant": await check_service(f"{QDRANT_URL}/health"),
-        "vscode-extension": await check_service(VSCODE_EXTENSION_URL),
-        "terminal-ai": await check_service(TERMINAL_AI_URL),
+        "vscode-extension": await check_service(f"{VSCODE_EXTENSION_URL}/health"),
+        "terminal-ai": await check_service(f"{TERMINAL_AI_URL}/health"),
     }
     
     all_healthy = all(status == "healthy" for status in services.values())

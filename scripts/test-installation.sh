@@ -57,26 +57,26 @@ echo ""
 # Test 1: Nginx
 test_service "Nginx" "http://localhost/health" "200"
 
-# Test 2: API Gateway Health
+# Test 2: API Gateway Health (via Nginx proxy)
 test_service "API Gateway Health" "http://localhost/api/health" "200"
 
-# Test 3: Agent Orchestrator
-test_service "Agent Orchestrator" "http://localhost:8000/health" "200"
+# Test 3: Rules Engine (via API Gateway)
+test_service "Rules Engine (via Gateway)" "http://localhost/api/rules" "200"
 
-# Test 4: Rules Engine
-test_service "Rules Engine" "http://localhost:8001/health" "200"
+# Test 4: API Gateway Health (checks all services)
+# This endpoint checks the health of all internal services
+test_service "All Services Health Check" "http://localhost/api/health" "200"
 
-# Test 5: MCP GitHub
-test_service "MCP GitHub" "http://localhost:3001/health" "200"
-
-# Test 6: MCP GitLab
-test_service "MCP GitLab" "http://localhost:3002/health" "200"
-
-# Test 7: Ollama
+# Test 7: Ollama (direct - runs on host)
 test_service "Ollama" "http://localhost:11434/api/tags" "200"
 
-# Test 8: Code Server (direct)
-test_service "Code Server" "http://localhost:8080" "200"
+# Test 8: Code Server (direct - exposed on host)
+# Get CODE_SERVER_PORT from .env if it exists
+if [ -f ../.env ]; then
+    export $(grep -v '^#' ../.env | grep CODE_SERVER_PORT | xargs) 2>/dev/null || true
+fi
+CODE_SERVER_PORT=${CODE_SERVER_PORT:-8080}
+test_service "Code Server (direct)" "http://localhost:${CODE_SERVER_PORT}" "200"
 
 # Test 9: API Gateway Rules Endpoint
 test_service "API Gateway Rules" "http://localhost/api/rules" "200"

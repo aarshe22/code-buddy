@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Note: Ollama runs natively on the Docker host (not in a container)
   # Ollama must be installed and running on the host, listening on 0.0.0.0:11434
