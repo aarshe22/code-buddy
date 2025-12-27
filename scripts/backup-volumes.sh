@@ -105,9 +105,9 @@ Total: $BACKED_UP volumes
 Failed: $FAILED volumes
 
 To restore:
-1. Stop services: docker-compose down
+1. Stop services: docker compose down
 2. Restore volumes using restore-volumes.sh
-3. Start services: docker-compose up -d
+3. Start services: docker compose up -d
 EOF
 
 echo "Manifest created: $BACKUP_DIR/MANIFEST.txt"

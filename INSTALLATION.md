@@ -48,7 +48,7 @@ echo \
 
 # Install Docker
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker compose-plugin
 
 # Add user to docker group (logout/login required)
 sudo usermod -aG docker $USER
@@ -147,16 +147,16 @@ Optional settings:
 
 ```bash
 # Build all services
-docker-compose build
+docker compose build
 
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Check status
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### 5. Pull Ollama Models (on Host)
@@ -220,7 +220,7 @@ GITLAB_TOKEN=your_token_here
 
 Then restart services:
 ```bash
-docker-compose restart mcp-github mcp-gitlab
+docker compose restart mcp-github mcp-gitlab
 ```
 
 ## Troubleshooting
@@ -257,18 +257,18 @@ docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 sudo lsof -i :80
 sudo lsof -i :8080
 
-# Stop conflicting services or change ports in docker-compose.yml
+# Stop conflicting services or change ports in docker compose.yml
 ```
 
 ### Service Won't Start
 
 ```bash
 # Check logs
-docker-compose logs <service-name>
+docker compose logs <service-name>
 
 # Rebuild service
-docker-compose build --no-cache <service-name>
-docker-compose up -d <service-name>
+docker compose build --no-cache <service-name>
+docker compose up -d <service-name>
 ```
 
 ### Out of Memory
@@ -286,13 +286,13 @@ ollama pull llama3.2:3b  # Run on host
 
 ```bash
 # Stop and remove containers
-docker-compose down
+docker compose down
 
 # Remove volumes (WARNING: deletes all data)
-docker-compose down -v
+docker compose down -v
 
 # Remove images
-docker-compose down --rmi all
+docker compose down --rmi all
 ```
 
 ## Updating
@@ -302,10 +302,10 @@ docker-compose down --rmi all
 git pull
 
 # Rebuild services
-docker-compose build
+docker compose build
 
 # Restart services
-docker-compose up -d
+docker compose up -d
 
 # Update models
 ollama pull llama3.2:90b  # Run on host
@@ -321,7 +321,7 @@ ollama pull llama3.2:90b  # Run on host
 ## Support
 
 For issues:
-1. Check service logs: `docker-compose logs <service>`
+1. Check service logs: `docker compose logs <service>`
 2. Check health: `curl http://localhost/api/health`
 3. Review [README.md](README.md) troubleshooting section
 

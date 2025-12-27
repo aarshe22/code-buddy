@@ -165,7 +165,7 @@ Edit `.env` file and set:
 
 3. **Start services**:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 4. **Pull Ollama models** (on the host):
@@ -384,7 +384,7 @@ Edit `services/agent-orchestrator/agents/base_agent.py` and change the `model` v
 
 ```
 dev-stack/
-├── docker-compose.yml          # Service orchestration
+├── docker compose.yml          # Service orchestration
 ├── services/
 │   ├── agent-orchestrator/    # Main agent service
 │   ├── mcp-github/            # GitHub MCP server
@@ -407,7 +407,7 @@ dev-stack/
 
 1. Create new service in `services/`
 2. Implement MCP protocol
-3. Add to `docker-compose.yml`
+3. Add to `docker compose.yml`
 
 ## Troubleshooting
 
@@ -431,13 +431,13 @@ docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 
 ```bash
 # Check logs
-docker-compose logs
+docker compose logs
 
 # Restart services
-docker-compose restart
+docker compose restart
 
 # Rebuild images
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ## Performance Tuning
@@ -499,7 +499,7 @@ All components are open source and free:
 ## Support
 
 For issues, check:
-1. Service logs: `docker-compose logs <service-name>`
+1. Service logs: `docker compose logs <service-name>`
 2. Health endpoint: `http://localhost/api/health`
 3. Ollama status: `ollama list` (on host)
 

@@ -88,7 +88,7 @@ cd /home/aarshe/dev-stack
 nano .env  # Set CODE_SERVER_PASSWORD
 
 # 3. Start
-docker-compose up -d
+docker compose up -d
 
 # 4. Pull models
 ollama pull deepseek-coder:33b    # Coding model
@@ -230,7 +230,7 @@ Your system can handle:
 
 ## Support & Troubleshooting
 
-- **Check logs**: `docker-compose logs <service>`
+- **Check logs**: `docker compose logs <service>`
 - **Health check**: `curl http://localhost/api/health`
 - **System check**: `./scripts/check-system.sh`
 - **Test installation**: `./scripts/test-installation.sh`

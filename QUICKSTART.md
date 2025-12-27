@@ -46,7 +46,7 @@ Optional (for GitHub/GitLab integration):
 ## 3. Start Services
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 4. Pull Ollama Models (on Host)
@@ -100,20 +100,20 @@ curl http://localhost/api/health
 
 ```bash
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View logs for specific service
-docker-compose logs -f agent-orchestrator
+docker compose logs -f agent-orchestrator
 
 # Restart services
-docker-compose restart
+docker compose restart
 
 # Stop services
-docker-compose down
+docker compose down
 
 # Rebuild after code changes
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
 
 ## Troubleshooting
@@ -122,10 +122,10 @@ docker-compose up -d
 ```bash
 # Check Docker status
 docker ps
-docker-compose ps
+docker compose ps
 
 # Check logs
-docker-compose logs
+docker compose logs
 ```
 
 ### GPU not working

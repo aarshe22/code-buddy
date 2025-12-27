@@ -41,8 +41,8 @@ test_service() {
 
 # Check if services are running
 echo "Checking if services are running..."
-if ! docker-compose ps | grep -q "Up"; then
-    echo -e "${RED}Error: Services are not running. Start them with: docker-compose up -d${NC}"
+if ! docker compose ps | grep -q "Up"; then
+    echo -e "${RED}Error: Services are not running. Start them with: docker compose up -d${NC}"
     exit 1
 fi
 
@@ -106,7 +106,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     exit 0
 else
     echo -e "${YELLOW}Some tests failed. Check the service logs:${NC}"
-    echo "  docker-compose logs"
+    echo "  docker compose logs"
     exit 1
 fi
 

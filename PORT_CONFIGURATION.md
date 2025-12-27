@@ -96,7 +96,7 @@ All other services are internal-only and **will not conflict** with host service
 Check exposed ports:
 ```bash
 # List only externally exposed ports
-docker-compose ps --format json | jq -r '.[] | select(.Ports != "") | "\(.Name): \(.Ports)"'
+docker compose ps --format json | jq -r '.[] | select(.Ports != "") | "\(.Name): \(.Ports)"'
 
 # Should only show:
 # - nginx: 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp

@@ -102,7 +102,7 @@ CODE_SERVER_PASSWORD=your_secure_password
 ### Port Already in Use
 If port 8080 is already in use:
 1. Change `CODE_SERVER_PORT` in `.env`
-2. Restart services: `docker-compose restart code-server`
+2. Restart services: `docker compose restart code-server`
 
 ### Cannot Access from Remote
 1. Check firewall: `sudo ufw status`
@@ -111,10 +111,10 @@ If port 8080 is already in use:
 4. Verify host IP: `ip addr show` or `hostname -I`
 
 ### Connection Refused
-1. Verify Code-Server is running: `docker-compose ps code-server`
-2. Check logs: `docker-compose logs code-server`
+1. Verify Code-Server is running: `docker compose ps code-server`
+2. Check logs: `docker compose logs code-server`
 3. Verify port configuration in `.env`
-4. Restart service: `docker-compose restart code-server`
+4. Restart service: `docker compose restart code-server`
 
 ## Configuration Files
 

@@ -16,7 +16,7 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Check for Docker Compose
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+if ! docker compose version &> /dev/null; then
     echo "Error: Docker Compose is not installed. Please install Docker Compose first."
     exit 1
 fi
@@ -72,11 +72,11 @@ mkdir -p nginx/conf.d
 
 # Build custom images
 echo "Building custom service images..."
-docker-compose build
+docker compose build
 
 # Start services
 echo "Starting services..."
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to be ready
 echo "Waiting for services to start..."
@@ -84,7 +84,7 @@ sleep 10
 
 # Check service health
 echo "Checking service health..."
-docker-compose ps
+docker compose ps
 
 # Check for recommended Ollama models
 echo ""
@@ -115,9 +115,9 @@ echo "  - API Gateway: http://localhost/api"
 echo ""
 echo "Note: Code-Server is accessible on all host IP addresses on port ${CODE_SERVER_PORT}"
 echo ""
-echo "To view logs: docker-compose logs -f"
-echo "To stop services: docker-compose down"
-echo "To restart services: docker-compose restart"
+echo "To view logs: docker compose logs -f"
+echo "To stop services: docker compose down"
+echo "To restart services: docker compose restart"
 echo ""
 echo "Next steps:"
 echo "1. Open http://localhost in your browser"

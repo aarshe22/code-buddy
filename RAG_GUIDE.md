@@ -380,9 +380,9 @@ curl http://localhost:6333/health
 Check service logs:
 
 ```bash
-docker-compose logs qdrant
-docker-compose logs code-indexer
-docker-compose logs rag-chat
+docker compose logs qdrant
+docker compose logs code-indexer
+docker compose logs rag-chat
 ```
 
 ## Performance

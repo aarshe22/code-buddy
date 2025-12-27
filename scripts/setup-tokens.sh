@@ -63,6 +63,6 @@ echo "Token Setup Complete"
 echo "=========================================="
 echo ""
 echo "To apply changes, restart services:"
-echo "  docker-compose restart mcp-github mcp-gitlab"
+echo "  docker compose restart mcp-github mcp-gitlab"
 echo ""
 

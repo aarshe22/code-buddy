@@ -60,7 +60,7 @@ fi
 
 echo ""
 echo "Stopping services..."
-docker-compose down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 echo ""
 echo "Starting restore..."
@@ -102,7 +102,7 @@ echo ""
 
 if [ $FAILED -eq 0 ]; then
     echo "Restore complete! You can now start services:"
-    echo "  docker-compose up -d"
+    echo "  docker compose up -d"
 else
     echo "Some volumes failed to restore. Please check the errors above."
 fi

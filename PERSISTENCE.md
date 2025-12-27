@@ -225,8 +225,8 @@ Volumes persist through upgrades:
 git pull
 
 # Rebuild and restart (volumes persist)
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
 
 ## Environment Variables

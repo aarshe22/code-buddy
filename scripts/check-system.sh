@@ -20,10 +20,7 @@ fi
 
 # Check Docker Compose
 echo -n "Checking Docker Compose... "
-if command -v docker-compose &> /dev/null; then
-    COMPOSE_VERSION=$(docker-compose --version)
-    echo "✓ Found: $COMPOSE_VERSION"
-elif docker compose version &> /dev/null; then
+if docker compose version &> /dev/null; then
     COMPOSE_VERSION=$(docker compose version)
     echo "✓ Found: $COMPOSE_VERSION"
 else
@@ -106,6 +103,6 @@ echo "System Check Complete"
 echo "=========================================="
 echo ""
 echo "If all checks passed, you can run:"
-echo "  docker-compose up -d"
+echo "  docker compose up -d"
 echo ""
 
