@@ -1,0 +1,17 @@
+.env
+*.log
+*.pyc
+__pycache__/
+node_modules/
+.venv/
+venv/
+*.swp
+*.swo
+*~
+.DS_Store
+workspace/*
+!workspace/.gitkeep
+data/
+*.db
+*.sqlite
+

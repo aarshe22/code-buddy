@@ -1,0 +1,54 @@
+rules:
+  - name: "no_hardcoded_secrets"
+    description: "Do not hardcode secrets, passwords, or API keys in code"
+    severity: "critical"
+    examples:
+      - "BAD: password = 'secret123'"
+      - "GOOD: password = os.getenv('PASSWORD')"
+    enabled: true
+
+  - name: "error_handling"
+    description: "Always include proper error handling"
+    severity: "high"
+    examples:
+      - "Use try-except blocks for error-prone operations"
+      - "Provide meaningful error messages"
+    enabled: true
+
+  - name: "type_hints"
+    description: "Use type hints for function parameters and return values"
+    severity: "medium"
+    language: "python"
+    enabled: true
+
+  - name: "docstrings"
+    description: "Include docstrings for functions, classes, and modules"
+    severity: "medium"
+    examples:
+      - "Use Google or NumPy style docstrings"
+    enabled: true
+
+  - name: "naming_conventions"
+    description: "Follow language-specific naming conventions"
+    severity: "medium"
+    examples:
+      - "Python: snake_case for functions/variables, PascalCase for classes"
+      - "JavaScript: camelCase for variables/functions, PascalCase for classes"
+    enabled: true
+
+  - name: "code_complexity"
+    description: "Keep functions simple and focused"
+    severity: "medium"
+    examples:
+      - "Functions should do one thing well"
+      - "Avoid deep nesting (max 3-4 levels)"
+    enabled: true
+
+  - name: "no_magic_numbers"
+    description: "Use named constants instead of magic numbers"
+    severity: "low"
+    examples:
+      - "BAD: if timeout > 30:"
+      - "GOOD: TIMEOUT_SECONDS = 30; if timeout > TIMEOUT_SECONDS:"
+    enabled: true
+

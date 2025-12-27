@@ -1,0 +1,27 @@
+{
+  "workbench.colorTheme": "Default Dark+",
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'Fira Code', 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll": true
+  },
+  "editor.minimap.enabled": true,
+  "editor.wordWrap": "on",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.formatting.provider": "black",
+  "javascript.format.enable": true,
+  "typescript.format.enable": true,
+  "git.enabled": true,
+  "git.autofetch": true,
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "extensions.autoUpdate": true,
+  "extensions.autoCheckUpdates": true
+}
+

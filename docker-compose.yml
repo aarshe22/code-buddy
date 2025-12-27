@@ -1,0 +1,401 @@
+version: '3.8'
+
+services:
+  # Note: Ollama runs natively on the Docker host (not in a container)
+  # Ollama must be installed and running on the host, listening on 0.0.0.0:11434
+  # Services access Ollama via host.docker.internal:11434
+
+  # Code-Server - Web-based VS Code IDE
+  code-server:
+    image: codercom/code-server:latest
+    container_name: dev-stack-code-server
+    volumes:
+      - code-server-data:/home/coder
+      - code-server-config:/home/coder/.config
+      - code-server-extensions:/home/coder/.local/share/code-server/extensions
+      - code-server-logs:/home/coder/.local/share/code-server/logs
+      - ./workspace:/home/coder/workspace
+      - ./code-server-config/settings.json:/home/coder/.config/code-server/settings.json:ro
+    environment:
+      - PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
+      - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
+      - DEFAULT_WORKSPACE=/home/coder/workspace
+    # No external port - accessed via Nginx on internal network
+    # Remove port mapping to avoid conflicts. Access via http://localhost (Nginx)
+    expose:
+      - "8080"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Agent Orchestrator - Main AI Agent Service
+  agent-orchestrator:
+    build:
+      context: ./services/agent-orchestrator
+      dockerfile: Dockerfile
+    container_name: dev-stack-agent-orchestrator
+    volumes:
+      - ./workspace:/app/workspace
+      - agent-data:/app/data
+      - agent-cache:/app/.cache
+      - agent-logs:/app/logs
+      - agent-state:/app/state
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - WORKSPACE_PATH=/app/workspace
+      - LOG_LEVEL=INFO
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+      - STATE_DIR=/app/state
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "8000"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mcp-github
+      - mcp-gitlab
+      - qdrant
+
+  # MCP GitHub Server
+  mcp-github:
+    build:
+      context: ./services/mcp-github
+      dockerfile: Dockerfile
+    container_name: dev-stack-mcp-github
+    volumes:
+      - mcp-github-data:/app/data
+      - mcp-github-cache:/app/.cache
+      - mcp-github-logs:/app/logs
+      - mcp-github-node_modules:/app/node_modules
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - MCP_PORT=3001
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "3001"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+
+  # MCP GitLab Server
+  mcp-gitlab:
+    build:
+      context: ./services/mcp-gitlab
+      dockerfile: Dockerfile
+    container_name: dev-stack-mcp-gitlab
+    volumes:
+      - mcp-gitlab-data:/app/data
+      - mcp-gitlab-cache:/app/.cache
+      - mcp-gitlab-logs:/app/logs
+      - mcp-gitlab-node_modules:/app/node_modules
+    environment:
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      - GITLAB_URL=${GITLAB_URL:-https://gitlab.com}
+      - MCP_PORT=3002
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "3002"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+
+  # Qdrant - Vector Database for Code Indexing and RAG
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: dev-stack-qdrant
+    volumes:
+      - qdrant-data:/qdrant/storage
+      - qdrant-config:/qdrant/config
+      - qdrant-logs:/qdrant/logs
+    # No external ports - accessed only on internal network
+    expose:
+      - "6333"  # HTTP
+      - "6334"  # gRPC
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+
+  # Code Indexer - Indexes codebase into Qdrant
+  code-indexer:
+    build:
+      context: ./services/code-indexer
+      dockerfile: Dockerfile
+    container_name: dev-stack-code-indexer
+    volumes:
+      - ./workspace:/app/workspace
+      - indexer-data:/app/data
+      - indexer-cache:/app/.cache
+      - indexer-logs:/app/logs
+      - indexer-state:/app/state
+    environment:
+      - QDRANT_HOST=http://qdrant:6333
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - WORKSPACE_PATH=/app/workspace
+      - LOG_LEVEL=INFO
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+      - STATE_DIR=/app/state
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "8002"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - qdrant
+
+  # RAG Chat Service - Codebase-aware chat with RAG
+  rag-chat:
+    build:
+      context: ./services/rag-chat
+      dockerfile: Dockerfile
+    container_name: dev-stack-rag-chat
+    volumes:
+      - ./workspace:/app/workspace
+      - rag-chat-data:/app/data
+      - rag-chat-cache:/app/.cache
+      - rag-chat-logs:/app/logs
+    environment:
+      - QDRANT_HOST=http://qdrant:6333
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - WORKSPACE_PATH=/app/workspace
+      - LOG_LEVEL=INFO
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "8003"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - qdrant
+      - code-indexer
+
+  # VS Code Extension Server - IDE Integration
+  vscode-extension-server:
+    build:
+      context: ./services/vscode-extension-server
+      dockerfile: Dockerfile
+    container_name: dev-stack-vscode-extension
+    volumes:
+      - vscode-extension-data:/app/data
+      - vscode-extension-logs:/app/logs
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
+      - RAG_CHAT_URL=http://rag-chat:8003
+      - PORT=3003
+    # No external ports - accessed via API Gateway on internal network
+    expose:
+      - "3003"  # HTTP
+      - "3004"  # WebSocket
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - agent-orchestrator
+      - rag-chat
+
+  # Terminal AI Assistant
+  terminal-ai:
+    build:
+      context: ./services/terminal-ai
+      dockerfile: Dockerfile
+    container_name: dev-stack-terminal-ai
+    volumes:
+      - terminal-ai-data:/app/data
+      - terminal-ai-cache:/app/.cache
+      - terminal-ai-logs:/app/logs
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "8004"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - agent-orchestrator
+
+  # Rules Engine - Coding Standards Enforcement
+  rules-engine:
+    build:
+      context: ./services/rules-engine
+      dockerfile: Dockerfile
+    container_name: dev-stack-rules-engine
+    volumes:
+      - ./rules:/app/rules:ro
+      - rules-data:/app/data
+      - rules-cache:/app/.cache
+      - rules-logs:/app/logs
+    environment:
+      - RULES_PATH=/app/rules
+      - LOG_LEVEL=INFO
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via API Gateway on internal network
+    expose:
+      - "8001"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+
+  # API Gateway - Unified API Interface
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: dev-stack-api-gateway
+    volumes:
+      - api-gateway-data:/app/data
+      - api-gateway-cache:/app/.cache
+      - api-gateway-logs:/app/logs
+    environment:
+      - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
+      - RULES_ENGINE_URL=http://rules-engine:8001
+      - MCP_GITHUB_URL=http://mcp-github:3001
+      - MCP_GITLAB_URL=http://mcp-gitlab:3002
+      - OLLAMA_URL=${OLLAMA_URL:-http://host.docker.internal:11434}
+      - QDRANT_URL=http://qdrant:6333
+      - CODE_INDEXER_URL=http://code-indexer:8002
+      - RAG_CHAT_URL=http://rag-chat:8003
+      - VSCODE_EXTENSION_URL=http://vscode-extension-server:3003
+      - TERMINAL_AI_URL=http://terminal-ai:8004
+      - DATA_DIR=/app/data
+      - CACHE_DIR=/app/.cache
+      - LOG_DIR=/app/logs
+    # No external port - accessed via Nginx on internal network
+    expose:
+      - "9000"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - agent-orchestrator
+      - rules-engine
+      - mcp-github
+      - mcp-gitlab
+      - qdrant
+      - code-indexer
+      - rag-chat
+      - vscode-extension-server
+      - terminal-ai
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: dev-stack-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx-logs:/var/log/nginx
+      - nginx-cache:/var/cache/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    networks:
+      - dev-stack-network
+    depends_on:
+      - code-server
+      - api-gateway
+
+volumes:
+  # Code-Server
+  code-server-data:
+  code-server-config:
+  code-server-extensions:
+  code-server-logs:
+  
+  # Agent Orchestrator
+  agent-data:
+  agent-cache:
+  agent-logs:
+  agent-state:
+  
+  # MCP GitHub
+  mcp-github-data:
+  mcp-github-cache:
+  mcp-github-logs:
+  mcp-github-node_modules:
+  
+  # MCP GitLab
+  mcp-gitlab-data:
+  mcp-gitlab-cache:
+  mcp-gitlab-logs:
+  mcp-gitlab-node_modules:
+  
+  # Qdrant
+  qdrant-data:
+  qdrant-config:
+  qdrant-logs:
+  
+  # Code Indexer
+  indexer-data:
+  indexer-cache:
+  indexer-logs:
+  indexer-state:
+  
+  # RAG Chat
+  rag-chat-data:
+  rag-chat-cache:
+  rag-chat-logs:
+  
+  # Rules Engine
+  rules-data:
+  rules-cache:
+  rules-logs:
+  
+  # API Gateway
+  api-gateway-data:
+  api-gateway-cache:
+  api-gateway-logs:
+  
+  # Nginx
+  nginx-logs:
+  nginx-cache:
+  
+  # VS Code Extension Server
+  vscode-extension-data:
+  vscode-extension-logs:
+  
+  # Terminal AI
+  terminal-ai-data:
+  terminal-ai-cache:
+  terminal-ai-logs:
+
+networks:
+  dev-stack-network:
+    driver: bridge
+

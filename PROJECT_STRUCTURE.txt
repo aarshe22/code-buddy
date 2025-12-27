@@ -1,0 +1,91 @@
+Dev Stack - Complete Project Structure
+=====================================
+
+dev-stack/
+│
+├── 📄 docker-compose.yml          # Main orchestration file
+├── 📄 setup.sh                    # Automated setup script
+├── 📄 env.example                 # Environment variables template
+├── 📄 .gitignore                  # Git ignore rules
+├── 📄 .dockerignore               # Docker ignore rules
+│
+├── 📚 Documentation/
+│   ├── README.md                  # Main documentation
+│   ├── QUICKSTART.md              # Quick start guide
+│   ├── INSTALLATION.md            # Detailed installation
+│   ├── ARCHITECTURE.md            # System architecture
+│   ├── MODELS.md                  # Model recommendations
+│   ├── SUMMARY.md                 # Solution summary
+│   └── PROJECT_STRUCTURE.txt      # This file
+│
+├── 🐳 services/                   # All microservices
+│   │
+│   ├── agent-orchestrator/        # Main AI agent service
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   ├── main.py                # FastAPI service
+│   │   ├── workspace_manager.py   # File operations
+│   │   ├── mcp_client.py          # MCP protocol client
+│   │   └── agents/                 # AI agents
+│   │       ├── __init__.py
+│   │       ├── base_agent.py      # Base agent class
+│   │       ├── code_generator.py  # Code generation agent
+│   │       ├── code_reviewer.py   # Code review agent
+│   │       ├── debugger.py        # Debugging agent
+│   │       ├── refactorer.py      # Refactoring agent
+│   │       └── reasoning_engine.py # Reasoning capabilities
+│   │
+│   ├── mcp-github/                # GitHub MCP server
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── server.js              # Express + MCP server
+│   │
+│   ├── mcp-gitlab/                # GitLab MCP server
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── server.js              # Express + MCP server
+│   │
+│   ├── rules-engine/              # Coding rules management
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── main.py                # FastAPI service
+│   │
+│   └── api-gateway/               # Unified API interface
+│       ├── Dockerfile
+│       ├── requirements.txt
+│       └── main.py                # FastAPI gateway
+│
+├── 🌐 nginx/                       # Reverse proxy
+│   ├── nginx.conf                 # Main config
+│   └── conf.d/
+│       └── default.conf           # Service routing
+│
+├── 📋 rules/                       # Coding standards
+│   ├── default.yaml               # Default rules
+│   └── python.yaml                # Python-specific rules
+│
+├── ⚙️ code-server-config/          # Code-Server settings
+│   ├── settings.json              # VS Code settings
+│   └── extensions.json            # Recommended extensions
+│
+├── 💻 workspace/                   # Your code workspace
+│   └── .gitkeep
+│
+└── 🔧 scripts/                     # Helper scripts
+    ├── check-system.sh            # System verification
+    ├── setup-tokens.sh            # Token configuration
+    └── test-installation.sh       # Installation testing
+
+Total Files: 40+
+Total Services: 7
+Total Agents: 4
+Total MCP Servers: 2
+
+Key Technologies:
+- Python 3.11 (FastAPI, LangChain)
+- Node.js 20 (Express, MCP SDK)
+- Docker & Docker Compose
+- Ollama (Local LLMs)
+- Code-Server (Web IDE)
+- Nginx (Reverse Proxy)
+

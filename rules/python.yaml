@@ -1,0 +1,35 @@
+language: python
+rules:
+  - name: "python_imports"
+    description: "Organize imports: standard library, third-party, local"
+    severity: "low"
+    examples:
+      - "import os"
+      - "import requests"
+      - "from . import utils"
+    enabled: true
+
+  - name: "python_list_comprehensions"
+    description: "Prefer list comprehensions over loops when appropriate"
+    severity: "low"
+    examples:
+      - "GOOD: [x*2 for x in range(10)]"
+      - "BAD: result = []; for x in range(10): result.append(x*2)"
+    enabled: true
+
+  - name: "python_context_managers"
+    description: "Use context managers for resource management"
+    severity: "medium"
+    examples:
+      - "with open('file.txt') as f: ..."
+      - "Use contextlib for custom context managers"
+    enabled: true
+
+  - name: "python_async_await"
+    description: "Use async/await for I/O operations"
+    severity: "medium"
+    examples:
+      - "async def fetch_data(): ..."
+      - "await asyncio.gather(*tasks)"
+    enabled: true
+
