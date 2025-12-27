@@ -37,6 +37,8 @@ services:
       - ./code-server-config/settings.json:/home/coder/.config/code-server/User/settings.json:ro
       - ./code-server-config/config.yaml:/home/coder/.config/code-server/config.yaml:ro
       - ./scripts/code-server-entrypoint.sh:/usr/local/bin/code-server-entrypoint.sh:ro
+      - ./scripts/install-extensions.sh:/usr/local/bin/install-extensions.sh:ro
+      - ./scripts/setup-workspace.sh:/usr/local/bin/setup-workspace.sh:ro
     environment:
       - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
