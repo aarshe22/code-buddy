@@ -53,7 +53,6 @@ if [ ! -f "$EXTENSIONS_FILE" ]; then
     "ms-vscode.vscode-typescript-next",
     "ms-vscode.vscode-json",
     "redhat.vscode-yaml",
-    "ms-azuretools.vscode-docker",
     "eamodio.gitlens"
   ]
 }
