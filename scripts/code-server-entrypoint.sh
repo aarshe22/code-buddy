@@ -20,6 +20,12 @@ if [ -f "$SETUP_SCRIPT" ]; then
   bash "$SETUP_SCRIPT" || true
 fi
 
+# Force ensure tasks.json exists in workspace (VS Code reads from workspace folder)
+FORCE_TASKS_SCRIPT="/usr/local/bin/force-reload-tasks.sh"
+if [ -f "$FORCE_TASKS_SCRIPT" ]; then
+  bash "$FORCE_TASKS_SCRIPT" || true
+fi
+
 # Install extensions in background (non-blocking)
 if [ -f "$EXTENSIONS_SCRIPT" ]; then
   bash "$EXTENSIONS_SCRIPT" > /tmp/extension-install.log 2>&1 &
