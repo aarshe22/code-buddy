@@ -108,6 +108,8 @@ cleanup_artifacts() {
         echo "  No dangling images found"
     fi
     
+    docker system prune -a --volumes
+    
     echo ""
     echo "=========================================="
     echo "Cleanup Complete!"
