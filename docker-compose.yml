@@ -31,6 +31,8 @@ services:
       - code-buddy-code-server-extensions:/home/coder/.local/share/code-server/extensions
       - code-buddy-code-server-logs:/home/coder/.local/share/code-server/logs
       - ./workspace:/home/coder/workspace
+      - ./code-server-config:/opt/code-buddy-config:ro
+      - ./scripts/setup-workspace.sh:/usr/local/bin/setup-workspace.sh:ro
     environment:
       - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}

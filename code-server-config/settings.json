@@ -1,5 +1,9 @@
 {
+  // Code Buddy - Global Settings (applied to all workspaces)
   "workbench.colorTheme": "Default Dark+",
+  "workbench.startupEditor": "welcomePage",
+  
+  // Editor Settings
   "editor.fontSize": 14,
   "editor.fontFamily": "'Fira Code', 'Courier New', monospace",
   "editor.fontLigatures": true,
@@ -10,18 +14,42 @@
   },
   "editor.minimap.enabled": true,
   "editor.wordWrap": "on",
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "editor.inlineSuggest.enabled": true,
+  
+  // File Settings
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
+  
+  // Python Settings
   "python.defaultInterpreterPath": "/usr/bin/python3",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
   "python.formatting.provider": "black",
+  "python.analysis.autoImportCompletions": true,
+  
+  // JavaScript/TypeScript Settings
   "javascript.format.enable": true,
   "typescript.format.enable": true,
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true,
+  
+  // Git Settings
   "git.enabled": true,
   "git.autofetch": true,
+  
+  // Terminal Settings
   "terminal.integrated.defaultProfile.linux": "bash",
+  
+  // Extensions
   "extensions.autoUpdate": true,
-  "extensions.autoCheckUpdates": true
+  "extensions.autoCheckUpdates": true,
+  
+  // Code Buddy - Auto-configured API endpoints
+  "codeBuddy.apiGatewayUrl": "http://localhost/api",
+  "codeBuddy.ollamaUrl": "http://localhost:11434",
+  "codeBuddy.enabled": true,
+  "codeBuddy.autoConfigure": true
 }
 
