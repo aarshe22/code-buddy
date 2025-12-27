@@ -86,7 +86,7 @@ if [ ! -f "$TASKS_FILE" ]; then
     {
       "label": "Code Buddy: Health Check",
       "type": "shell",
-      "command": "curl -s http://localhost/api/health | python3 -m json.tool",
+      "command": "curl -s http://nginx/api/health | python3 -m json.tool 2>/dev/null || curl -s http://nginx/api/health | jq . 2>/dev/null || curl -s http://nginx/api/health",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always"
@@ -95,7 +95,7 @@ if [ ! -f "$TASKS_FILE" ]; then
     {
       "label": "Code Buddy: List Models",
       "type": "shell",
-      "command": "curl -s http://localhost/api/models | python3 -m json.tool",
+      "command": "curl -s http://nginx/api/models | python3 -m json.tool 2>/dev/null || curl -s http://nginx/api/models | jq . 2>/dev/null || curl -s http://nginx/api/models",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always"
@@ -104,7 +104,7 @@ if [ ! -f "$TASKS_FILE" ]; then
     {
       "label": "Code Buddy: Index Workspace",
       "type": "shell",
-      "command": "curl -X POST http://localhost/api/index",
+      "command": "curl -X POST http://nginx/api/index",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -114,7 +114,7 @@ if [ ! -f "$TASKS_FILE" ]; then
     {
       "label": "Code Buddy: Check Index Status",
       "type": "shell",
-      "command": "curl -s http://localhost/api/index/status | python3 -m json.tool",
+      "command": "curl -s http://nginx/api/index/status | python3 -m json.tool 2>/dev/null || curl -s http://nginx/api/index/status | jq . 2>/dev/null || curl -s http://nginx/api/index/status",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always"
