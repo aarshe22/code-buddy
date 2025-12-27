@@ -12,10 +12,13 @@ services:
       - code-buddy-code-server-config:/config
       - code-buddy-code-server-extensions:/extensions
       - code-buddy-code-server-logs:/logs
+      - ./workspace:/workspace
     command: |
       sh -c "
       chown -R 1000:1000 /data /config /extensions /logs 2>/dev/null || true &&
-      chmod -R 755 /data /config /extensions /logs 2>/dev/null || true
+      chmod -R 755 /data /config /extensions /logs 2>/dev/null || true &&
+      chown -R 1000:1000 /workspace 2>/dev/null || true &&
+      chmod -R 775 /workspace 2>/dev/null || true
       "
     networks:
       - code-buddy-network
