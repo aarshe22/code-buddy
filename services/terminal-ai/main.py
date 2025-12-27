@@ -88,7 +88,7 @@ async def suggest_command(request: CommandRequest):
         # Call Ollama for command suggestion
         url = f"{OLLAMA_HOST}/api/generate"
         payload = {
-            "model": "llama3.2:90b",
+            "model": "qwen2.5:72b",
             "prompt": f"""You are a helpful terminal assistant. The user wants to: {request.user_intent}
 
 {context}
@@ -148,7 +148,7 @@ async def explain_command(command: str):
     try:
         url = f"{OLLAMA_HOST}/api/generate"
         payload = {
-            "model": "llama3.2:90b",
+            "model": "qwen2.5:72b",
             "prompt": f"Explain what this command does in detail: {command}\n\nInclude:\n- What it does\n- Each flag/option\n- Common use cases\n- Safety considerations",
             "stream": False,
             "options": {
@@ -178,7 +178,7 @@ async def fix_command(command: str, error_message: str):
     try:
         url = f"{OLLAMA_HOST}/api/generate"
         payload = {
-            "model": "llama3.2:90b",
+            "model": "qwen2.5:72b",
             "prompt": f"""The user ran this command and got an error:
 
 Command: {command}

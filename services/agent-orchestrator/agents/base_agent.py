@@ -17,7 +17,7 @@ class BaseAgent(ABC):
         self.workspace_manager = workspace_manager
         self.mcp_client = mcp_client
         self.reasoning_engine = reasoning_engine
-        self.model = "llama3.2:90b"  # Default model, can be overridden
+        self.model = "qwen2.5:72b"  # Default model, can be overridden
         
     async def call_ollama(self, prompt: str, system_prompt: Optional[str] = None, 
                          model: Optional[str] = None, temperature: float = 0.7,

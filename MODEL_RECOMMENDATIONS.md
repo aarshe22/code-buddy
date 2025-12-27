@@ -46,32 +46,37 @@ These models are optimized for code generation, completion, and understanding.
 
 These models excel at complex reasoning, problem-solving, and multi-step thinking.
 
-#### Recommended: **llama3.2:90b**
-- **VRAM Required**: ~50GB
+#### Recommended: **qwen2.5:72b** ✅ (You already have this!)
+- **VRAM Required**: ~47GB
 - **Best For**: Complex reasoning, problem-solving, architecture decisions
 - **Strengths**:
-  - Best reasoning capabilities
+  - Excellent reasoning capabilities
   - Excellent for chain-of-thought
   - Great for system design
   - Handles complex multi-step tasks
-- **Pull Command**: `ollama pull llama3.2:90b`
+  - Multilingual capabilities
+- **Pull Command**: `ollama pull qwen2.5:72b`
+- **Status**: ✅ Already installed on your system
 
-#### Alternative: **llama3.2:70b**
+#### Alternative: **llama3.1:70b** (if available)
 - **VRAM Required**: ~40GB
 - **Best For**: High-quality reasoning with faster inference
 - **Strengths**:
   - Excellent reasoning
-  - Faster than 90b
-  - Still very capable
-- **Pull Command**: `ollama pull llama3.2:70b`
+  - Fast inference
+  - Very capable
+- **Pull Command**: `ollama pull llama3.1:70b`
+- **Note**: Verify availability with `ollama list` after pulling
 
-#### Alternative: **qwen2.5:72b**
-- **VRAM Required**: ~40GB
-- **Best For**: Complex reasoning, multilingual tasks
+#### Alternative: **llama3.1:8b** ✅ (You already have this!)
+- **VRAM Required**: ~5GB
+- **Best For**: Fast reasoning for simpler tasks
 - **Strengths**:
-  - Strong reasoning
-  - Multilingual capabilities
-- **Pull Command**: `ollama pull qwen2.5:72b`
+  - Fast inference
+  - Good for quick tasks
+  - Lower resource usage
+- **Pull Command**: `ollama pull llama3.1:8b`
+- **Status**: ✅ Already installed on your system
 
 ### 3. Embedding Models
 
@@ -108,8 +113,8 @@ For your 96GB VRAM system, you can run multiple models simultaneously:
 # Coding model
 ollama pull deepseek-coder:33b
 
-# Reasoning model
-ollama pull llama3.2:90b
+# Reasoning model (you already have qwen2.5:72b!)
+ollama pull qwen2.5:72b
 
 # Embedding model
 ollama pull nomic-embed-text
@@ -141,20 +146,20 @@ ollama pull nomic-embed-text
 - **Fallback**: `codellama:34b`
 
 ### Code Review
-- **Primary**: `llama3.2:90b` (better reasoning for review)
-- **Fallback**: `llama3.2:70b`
+- **Primary**: `qwen2.5:72b` (better reasoning for review)
+- **Fallback**: `llama3.1:70b`
 
 ### Debugging
 - **Primary**: `deepseek-coder:33b` (code-focused)
-- **Secondary**: `llama3.2:90b` (for complex reasoning)
+- **Secondary**: `qwen2.5:72b` (for complex reasoning)
 
 ### Refactoring
 - **Primary**: `deepseek-coder:33b`
 - **Secondary**: `codellama:34b`
 
 ### Reasoning Tasks
-- **Primary**: `llama3.2:90b`
-- **Fallback**: `llama3.2:70b`
+- **Primary**: `qwen2.5:72b`
+- **Fallback**: `llama3.1:70b`
 
 ### Embeddings (RAG)
 - **Primary**: `nomic-embed-text`
@@ -185,7 +190,7 @@ Or configure per-model:
 ollama run deepseek-coder:33b --keep-alive 24h
 
 # Keep reasoning model loaded  
-ollama run llama3.2:90b --keep-alive 24h
+ollama run qwen2.5:72b --keep-alive 24h
 ```
 
 ## Performance Expectations
@@ -211,7 +216,7 @@ ollama run llama3.2:90b --keep-alive 24h
 ```bash
 # Install recommended models
 ollama pull deepseek-coder:33b
-ollama pull llama3.2:90b
+ollama pull qwen2.5:72b  # For reasoning (you already have this!)
 ollama pull nomic-embed-text
 
 # Verify installation
@@ -223,7 +228,7 @@ ollama list
 ```bash
 # Show model details
 ollama show deepseek-coder:33b
-ollama show llama3.2:90b
+ollama show qwen2.5:72b
 ollama show nomic-embed-text
 ```
 
@@ -288,7 +293,7 @@ ollama run my-coder
 For your powerful system, the recommended setup is:
 
 1. **Coding**: `deepseek-coder:33b` - Best code generation
-2. **Reasoning**: `llama3.2:90b` - Best reasoning capabilities  
+2. **Reasoning**: `qwen2.5:72b` - Best reasoning capabilities (you already have this!)  
 3. **Embeddings**: `nomic-embed-text` - Excellent for code embeddings
 
 This combination provides the best balance of quality and performance for your hardware.

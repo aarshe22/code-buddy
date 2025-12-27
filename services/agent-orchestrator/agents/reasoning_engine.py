@@ -14,7 +14,7 @@ class ReasoningEngine:
     
     def __init__(self, ollama_host: str):
         self.ollama_host = ollama_host
-        self.model = "llama3.2:90b"
+        self.model = "qwen2.5:72b"
     
     async def reason(self, problem: str, context: Optional[Dict[str, Any]] = None,
                     reasoning_type: str = "chain_of_thought") -> Dict[str, Any]:

@@ -145,7 +145,7 @@ User question: {request.message}
 Provide a helpful answer based on the codebase context."""
         
         # Call Ollama for response
-        model = request.model or "llama3.2:90b"
+        model = request.model or "qwen2.5:72b"
         response_text = await call_ollama(
             prompt=user_prompt,
             system_prompt=system_prompt,
