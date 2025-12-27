@@ -71,7 +71,7 @@ async def health_check():
         "ollama": await check_service(f"{OLLAMA_URL}/api/tags"),
         "code-indexer": await check_service(f"{CODE_INDEXER_URL}/health"),
         "rag-chat": await check_service(f"{RAG_CHAT_URL}/health"),
-        "qdrant": await check_service(f"{QDRANT_URL}/health"),
+        "qdrant": await check_service(f"{QDRANT_URL}/collections"),
         "vscode-extension": await check_service(f"{VSCODE_EXTENSION_URL}/health"),
         "terminal-ai": await check_service(f"{TERMINAL_AI_URL}/health"),
     }
