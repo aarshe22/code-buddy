@@ -5,6 +5,24 @@ services:
   # Ollama must be installed and running on the host, listening on 0.0.0.0:11434
   # Services access Ollama via host.docker.internal:11434
 
+  # Code-Server Init - Fix volume permissions
+  code-server-init:
+    image: alpine:latest
+    container_name: code-buddy-code-server-init
+    volumes:
+      - code-buddy-code-server-data:/data
+      - code-buddy-code-server-config:/config
+      - code-buddy-code-server-extensions:/extensions
+      - code-buddy-code-server-logs:/logs
+    command: |
+      sh -c "
+      chown -R 1000:1000 /data /config /extensions /logs 2>/dev/null || true &&
+      chmod -R 755 /data /config /extensions /logs 2>/dev/null || true
+      "
+    networks:
+      - code-buddy-network
+    restart: "no"
+
   # Code-Server - Web-based VS Code IDE
   code-server:
     image: codercom/code-server:latest
@@ -19,12 +37,6 @@ services:
       - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - DEFAULT_WORKSPACE=/home/coder/workspace
-    entrypoint: |
-      sh -c "
-      mkdir -p /home/coder/.config/code-server &&
-      chmod -R 755 /home/coder/.config &&
-      exec dumb-init -- /usr/bin/code-server --bind-addr 0.0.0.0:8080
-      "
     # Expose Code-Server on all host IP addresses via configurable port
     # Accessible via: http://<host-ip>:${CODE_SERVER_PORT}
     # Also accessible via Nginx on port 80: http://<host-ip>
@@ -35,6 +47,10 @@ services:
       - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      code-server-init:
+        condition: service_completed_successfully
+    command: ["--bind-addr", "0.0.0.0:8080"]
 
   # Agent Orchestrator - Main AI Agent Service
   agent-orchestrator:
