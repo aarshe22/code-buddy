@@ -2,8 +2,133 @@
 
 # Code Buddy Setup Script
 # This script sets up the complete AI development stack
+# Usage: ./setup.sh [options]
+# Options:
+#   -clean    Clean up leftover artifacts from failed builds
 
 set -e
+
+# Cleanup function
+cleanup_artifacts() {
+    echo "=========================================="
+    echo "Code Buddy Cleanup"
+    echo "=========================================="
+    echo ""
+    
+    # Stop and remove containers
+    echo "Stopping and removing containers..."
+    docker compose down --remove-orphans 2>/dev/null || true
+    
+    # Remove code-buddy containers (in case compose down didn't catch them)
+    CONTAINERS=$(docker ps -a --filter "name=code-buddy-" --format "{{.Names}}" 2>/dev/null || true)
+    if [ ! -z "$CONTAINERS" ]; then
+        echo "$CONTAINERS" | while read container; do
+            if [ ! -z "$container" ]; then
+                echo "  Removing container: $container"
+                docker rm -f "$container" 2>/dev/null || true
+            fi
+        done
+    else
+        echo "  No code-buddy containers found"
+    fi
+    
+    # Remove code-buddy images
+    echo ""
+    echo "Removing code-buddy images..."
+    
+    # Get project name from directory or docker-compose
+    PROJECT_NAME=$(basename "$(pwd)" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+    
+    # Find images by container names (more reliable)
+    IMAGE_IDS=$(docker ps -a --filter "name=code-buddy-" --format "{{.Image}}" 2>/dev/null | sort -u || true)
+    
+    # Also find images by project name pattern (docker compose naming)
+    COMPOSE_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "^${PROJECT_NAME}_|^code-buddy-" 2>/dev/null || true)
+    
+    # Combine and deduplicate
+    ALL_IMAGES=$(echo -e "$IMAGE_IDS\n$COMPOSE_IMAGES" | grep -v "^$" | sort -u)
+    
+    if [ ! -z "$ALL_IMAGES" ]; then
+        echo "$ALL_IMAGES" | while read image; do
+            if [ ! -z "$image" ] && [ "$image" != "<none>:<none>" ]; then
+                # Check if image exists
+                if docker image inspect "$image" &>/dev/null; then
+                    echo "  Removing image: $image"
+                    docker rmi -f "$image" 2>/dev/null || true
+                fi
+            fi
+        done
+    else
+        echo "  No code-buddy images found"
+    fi
+    
+    # Also remove any images tagged with code-buddy service names
+    SERVICE_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "code-buddy-(agent-orchestrator|mcp-github|mcp-gitlab|code-indexer|rag-chat|rules-engine|api-gateway|vscode-extension|terminal-ai)" 2>/dev/null || true)
+    if [ ! -z "$SERVICE_IMAGES" ]; then
+        echo "$SERVICE_IMAGES" | while read image; do
+            if [ ! -z "$image" ] && [ "$image" != "<none>:<none>" ]; then
+                if docker image inspect "$image" &>/dev/null; then
+                    echo "  Removing image: $image"
+                    docker rmi -f "$image" 2>/dev/null || true
+                fi
+            fi
+        done
+    fi
+    
+    # Remove code-buddy network
+    echo ""
+    echo "Removing code-buddy network..."
+    if docker network ls | grep -q "code-buddy-network"; then
+        docker network rm code-buddy-network 2>/dev/null || true
+        echo "  Network removed"
+    else
+        echo "  Network not found"
+    fi
+    
+    # Clean up build cache (optional - can be large)
+    echo ""
+    read -p "Remove Docker build cache? This can free up significant space (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cleaning build cache..."
+        docker builder prune -f
+        echo "  Build cache cleaned"
+    else
+        echo "  Skipping build cache cleanup"
+    fi
+    
+    # Remove dangling images
+    echo ""
+    echo "Removing dangling images..."
+    DANGLING=$(docker images -f "dangling=true" -q 2>/dev/null || true)
+    if [ ! -z "$DANGLING" ]; then
+        docker rmi -f $DANGLING 2>/dev/null || true
+        echo "  Dangling images removed"
+    else
+        echo "  No dangling images found"
+    fi
+    
+    echo ""
+    echo "=========================================="
+    echo "Cleanup Complete!"
+    echo "=========================================="
+    echo ""
+    echo "Removed:"
+    echo "  - Stopped containers"
+    echo "  - Code-buddy images"
+    echo "  - Code-buddy network"
+    echo "  - Dangling images"
+    echo ""
+    echo "Note: Volumes were NOT removed to preserve your data."
+    echo "      To remove volumes, use: docker volume rm <volume-name>"
+    echo ""
+    exit 0
+}
+
+# Check for cleanup flag
+if [ "$1" = "-clean" ] || [ "$1" = "--clean" ] || [ "$1" = "clean" ]; then
+    cleanup_artifacts
+fi
 
 echo "=========================================="
 echo "Code Buddy Setup"
@@ -118,6 +243,7 @@ echo ""
 echo "To view logs: docker compose logs -f"
 echo "To stop services: docker compose down"
 echo "To restart services: docker compose restart"
+echo "To cleanup failed builds: ./setup.sh -clean"
 echo ""
 echo "Next steps:"
 echo "1. Open http://localhost in your browser"
