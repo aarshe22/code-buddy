@@ -2,7 +2,7 @@
 
 ## Port Strategy
 
-All services use the internal Docker network (`dev-stack-network`) for inter-service communication. Only essential ports are exposed to the host.
+All services use the internal Docker network (`code-buddy-network`) for inter-service communication. Only essential ports are exposed to the host.
 
 ## External Ports (Exposed to Host)
 
@@ -73,7 +73,7 @@ To test internal services from host (for debugging):
 curl http://localhost/api/health
 
 # Direct access to internal service (for debugging only)
-docker exec dev-stack-agent-orchestrator curl http://agent-orchestrator:8000/health
+docker exec code-buddy-agent-orchestrator curl http://agent-orchestrator:8000/health
 ```
 
 ## Port Conflict Prevention
@@ -87,7 +87,7 @@ If you need to run other services on the host:
 ## Network Isolation
 
 All services communicate via:
-- **Internal Network**: `dev-stack-network` (bridge)
+- **Internal Network**: `code-buddy-network` (bridge)
 - **Service Names**: Docker DNS resolution
 - **No External Exposure**: Except Nginx ports
 

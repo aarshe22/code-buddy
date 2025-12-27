@@ -8,17 +8,17 @@ services:
   # Code-Server - Web-based VS Code IDE
   code-server:
     image: codercom/code-server:latest
-    container_name: dev-stack-code-server
+    container_name: code-buddy-code-server
     volumes:
-      - code-server-data:/home/coder
-      - code-server-config:/home/coder/.config
-      - code-server-extensions:/home/coder/.local/share/code-server/extensions
-      - code-server-logs:/home/coder/.local/share/code-server/logs
+      - code-buddy-code-server-data:/home/coder
+      - code-buddy-code-server-config:/home/coder/.config
+      - code-buddy-code-server-extensions:/home/coder/.local/share/code-server/extensions
+      - code-buddy-code-server-logs:/home/coder/.local/share/code-server/logs
       - ./workspace:/home/coder/workspace
       - ./code-server-config/settings.json:/home/coder/.config/code-server/settings.json:ro
     environment:
-      - PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
-      - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
+      - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
+      - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - DEFAULT_WORKSPACE=/home/coder/workspace
     # Expose Code-Server on all host IP addresses via configurable port
     # Accessible via: http://<host-ip>:${CODE_SERVER_PORT}
@@ -27,7 +27,7 @@ services:
       - "0.0.0.0:${CODE_SERVER_PORT:-8080}:8080"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -36,13 +36,13 @@ services:
     build:
       context: ./services/agent-orchestrator
       dockerfile: Dockerfile
-    container_name: dev-stack-agent-orchestrator
+    container_name: code-buddy-agent-orchestrator
     volumes:
       - ./workspace:/app/workspace
-      - agent-data:/app/data
-      - agent-cache:/app/.cache
-      - agent-logs:/app/logs
-      - agent-state:/app/state
+      - code-buddy-agent-data:/app/data
+      - code-buddy-agent-cache:/app/.cache
+      - code-buddy-agent-logs:/app/logs
+      - code-buddy-agent-state:/app/state
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
       - WORKSPACE_PATH=/app/workspace
@@ -56,7 +56,7 @@ services:
       - "8000"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -69,12 +69,12 @@ services:
     build:
       context: ./services/mcp-github
       dockerfile: Dockerfile
-    container_name: dev-stack-mcp-github
+    container_name: code-buddy-mcp-github
     volumes:
-      - mcp-github-data:/app/data
-      - mcp-github-cache:/app/.cache
-      - mcp-github-logs:/app/logs
-      - mcp-github-node_modules:/app/node_modules
+      - code-buddy-mcp-github-data:/app/data
+      - code-buddy-mcp-github-cache:/app/.cache
+      - code-buddy-mcp-github-logs:/app/logs
+      - code-buddy-mcp-github-node_modules:/app/node_modules
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - MCP_PORT=3001
@@ -86,19 +86,19 @@ services:
       - "3001"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
 
   # MCP GitLab Server
   mcp-gitlab:
     build:
       context: ./services/mcp-gitlab
       dockerfile: Dockerfile
-    container_name: dev-stack-mcp-gitlab
+    container_name: code-buddy-mcp-gitlab
     volumes:
-      - mcp-gitlab-data:/app/data
-      - mcp-gitlab-cache:/app/.cache
-      - mcp-gitlab-logs:/app/logs
-      - mcp-gitlab-node_modules:/app/node_modules
+      - code-buddy-mcp-gitlab-data:/app/data
+      - code-buddy-mcp-gitlab-cache:/app/.cache
+      - code-buddy-mcp-gitlab-logs:/app/logs
+      - code-buddy-mcp-gitlab-node_modules:/app/node_modules
     environment:
       - GITLAB_TOKEN=${GITLAB_TOKEN:-}
       - GITLAB_URL=${GITLAB_URL:-https://gitlab.com}
@@ -111,36 +111,36 @@ services:
       - "3002"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
 
   # Qdrant - Vector Database for Code Indexing and RAG
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: dev-stack-qdrant
+    container_name: code-buddy-qdrant
     volumes:
-      - qdrant-data:/qdrant/storage
-      - qdrant-config:/qdrant/config
-      - qdrant-logs:/qdrant/logs
+      - code-buddy-qdrant-data:/qdrant/storage
+      - code-buddy-qdrant-config:/qdrant/config
+      - code-buddy-qdrant-logs:/qdrant/logs
     # No external ports - accessed only on internal network
     expose:
       - "6333"  # HTTP
       - "6334"  # gRPC
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
 
   # Code Indexer - Indexes codebase into Qdrant
   code-indexer:
     build:
       context: ./services/code-indexer
       dockerfile: Dockerfile
-    container_name: dev-stack-code-indexer
+    container_name: code-buddy-code-indexer
     volumes:
       - ./workspace:/app/workspace
-      - indexer-data:/app/data
-      - indexer-cache:/app/.cache
-      - indexer-logs:/app/logs
-      - indexer-state:/app/state
+      - code-buddy-indexer-data:/app/data
+      - code-buddy-indexer-cache:/app/.cache
+      - code-buddy-indexer-logs:/app/logs
+      - code-buddy-indexer-state:/app/state
     environment:
       - QDRANT_HOST=http://qdrant:6333
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
@@ -155,7 +155,7 @@ services:
       - "8002"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -166,12 +166,12 @@ services:
     build:
       context: ./services/rag-chat
       dockerfile: Dockerfile
-    container_name: dev-stack-rag-chat
+    container_name: code-buddy-rag-chat
     volumes:
       - ./workspace:/app/workspace
-      - rag-chat-data:/app/data
-      - rag-chat-cache:/app/.cache
-      - rag-chat-logs:/app/logs
+      - code-buddy-rag-chat-data:/app/data
+      - code-buddy-rag-chat-cache:/app/.cache
+      - code-buddy-rag-chat-logs:/app/logs
     environment:
       - QDRANT_HOST=http://qdrant:6333
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
@@ -185,7 +185,7 @@ services:
       - "8003"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -197,10 +197,10 @@ services:
     build:
       context: ./services/vscode-extension-server
       dockerfile: Dockerfile
-    container_name: dev-stack-vscode-extension
+    container_name: code-buddy-vscode-extension
     volumes:
-      - vscode-extension-data:/app/data
-      - vscode-extension-logs:/app/logs
+      - code-buddy-vscode-extension-data:/app/data
+      - code-buddy-vscode-extension-logs:/app/logs
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
       - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
@@ -212,7 +212,7 @@ services:
       - "3004"  # WebSocket
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -224,11 +224,11 @@ services:
     build:
       context: ./services/terminal-ai
       dockerfile: Dockerfile
-    container_name: dev-stack-terminal-ai
+    container_name: code-buddy-terminal-ai
     volumes:
-      - terminal-ai-data:/app/data
-      - terminal-ai-cache:/app/.cache
-      - terminal-ai-logs:/app/logs
+      - code-buddy-terminal-ai-data:/app/data
+      - code-buddy-terminal-ai-cache:/app/.cache
+      - code-buddy-terminal-ai-logs:/app/logs
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
       - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
@@ -240,7 +240,7 @@ services:
       - "8004"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -251,12 +251,12 @@ services:
     build:
       context: ./services/rules-engine
       dockerfile: Dockerfile
-    container_name: dev-stack-rules-engine
+    container_name: code-buddy-rules-engine
     volumes:
       - ./rules:/app/rules:ro
-      - rules-data:/app/data
-      - rules-cache:/app/.cache
-      - rules-logs:/app/logs
+      - code-buddy-rules-data:/app/data
+      - code-buddy-rules-cache:/app/.cache
+      - code-buddy-rules-logs:/app/logs
     environment:
       - RULES_PATH=/app/rules
       - LOG_LEVEL=INFO
@@ -268,18 +268,18 @@ services:
       - "8001"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
 
   # API Gateway - Unified API Interface
   api-gateway:
     build:
       context: ./services/api-gateway
       dockerfile: Dockerfile
-    container_name: dev-stack-api-gateway
+    container_name: code-buddy-api-gateway
     volumes:
-      - api-gateway-data:/app/data
-      - api-gateway-cache:/app/.cache
-      - api-gateway-logs:/app/logs
+      - code-buddy-api-gateway-data:/app/data
+      - code-buddy-api-gateway-cache:/app/.cache
+      - code-buddy-api-gateway-logs:/app/logs
     environment:
       - AGENT_ORCHESTRATOR_URL=http://agent-orchestrator:8000
       - RULES_ENGINE_URL=http://rules-engine:8001
@@ -299,7 +299,7 @@ services:
       - "9000"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -316,87 +316,87 @@ services:
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: dev-stack-nginx
+    container_name: code-buddy-nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - nginx-logs:/var/log/nginx
-      - nginx-cache:/var/cache/nginx
+      - code-buddy-nginx-logs:/var/log/nginx
+      - code-buddy-nginx-cache:/var/cache/nginx
     ports:
       - "80:80"
       - "443:443"
     restart: unless-stopped
     networks:
-      - dev-stack-network
+      - code-buddy-network
     depends_on:
       - code-server
       - api-gateway
 
 volumes:
   # Code-Server
-  code-server-data:
-  code-server-config:
-  code-server-extensions:
-  code-server-logs:
+  code-buddy-code-server-data:
+  code-buddy-code-server-config:
+  code-buddy-code-server-extensions:
+  code-buddy-code-server-logs:
   
   # Agent Orchestrator
-  agent-data:
-  agent-cache:
-  agent-logs:
-  agent-state:
+  code-buddy-agent-data:
+  code-buddy-agent-cache:
+  code-buddy-agent-logs:
+  code-buddy-agent-state:
   
   # MCP GitHub
-  mcp-github-data:
-  mcp-github-cache:
-  mcp-github-logs:
-  mcp-github-node_modules:
+  code-buddy-mcp-github-data:
+  code-buddy-mcp-github-cache:
+  code-buddy-mcp-github-logs:
+  code-buddy-mcp-github-node_modules:
   
   # MCP GitLab
-  mcp-gitlab-data:
-  mcp-gitlab-cache:
-  mcp-gitlab-logs:
-  mcp-gitlab-node_modules:
+  code-buddy-mcp-gitlab-data:
+  code-buddy-mcp-gitlab-cache:
+  code-buddy-mcp-gitlab-logs:
+  code-buddy-mcp-gitlab-node_modules:
   
   # Qdrant
-  qdrant-data:
-  qdrant-config:
-  qdrant-logs:
+  code-buddy-qdrant-data:
+  code-buddy-qdrant-config:
+  code-buddy-qdrant-logs:
   
   # Code Indexer
-  indexer-data:
-  indexer-cache:
-  indexer-logs:
-  indexer-state:
+  code-buddy-indexer-data:
+  code-buddy-indexer-cache:
+  code-buddy-indexer-logs:
+  code-buddy-indexer-state:
   
   # RAG Chat
-  rag-chat-data:
-  rag-chat-cache:
-  rag-chat-logs:
+  code-buddy-rag-chat-data:
+  code-buddy-rag-chat-cache:
+  code-buddy-rag-chat-logs:
   
   # Rules Engine
-  rules-data:
-  rules-cache:
-  rules-logs:
+  code-buddy-rules-data:
+  code-buddy-rules-cache:
+  code-buddy-rules-logs:
   
   # API Gateway
-  api-gateway-data:
-  api-gateway-cache:
-  api-gateway-logs:
+  code-buddy-api-gateway-data:
+  code-buddy-api-gateway-cache:
+  code-buddy-api-gateway-logs:
   
   # Nginx
-  nginx-logs:
-  nginx-cache:
+  code-buddy-nginx-logs:
+  code-buddy-nginx-cache:
   
   # VS Code Extension Server
-  vscode-extension-data:
-  vscode-extension-logs:
+  code-buddy-vscode-extension-data:
+  code-buddy-vscode-extension-logs:
   
   # Terminal AI
-  terminal-ai-data:
-  terminal-ai-cache:
-  terminal-ai-logs:
+  code-buddy-terminal-ai-data:
+  code-buddy-terminal-ai-cache:
+  code-buddy-terminal-ai-logs:
 
 networks:
-  dev-stack-network:
+  code-buddy-network:
     driver: bridge
 

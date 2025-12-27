@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# List all Dev Stack volumes with sizes
+# List all Code Buddy volumes with sizes
 
 echo "=========================================="
-echo "Dev Stack Volumes"
+echo "Code Buddy Volumes"
 echo "=========================================="
 echo ""
 
-# Get all dev-stack volumes
-VOLUMES=$(docker volume ls -q | grep -E "^dev-stack_|^devstack_" || docker volume ls -q | grep -E ".*ollama-data|.*code-server|.*agent|.*mcp|.*qdrant|.*indexer|.*rag|.*rules|.*api-gateway|.*nginx" || docker volume ls -q)
+# Get all code-buddy volumes
+VOLUMES=$(docker volume ls -q | grep -E "^code-buddy_" || docker volume ls -q)
 
 if [ -z "$VOLUMES" ]; then
     echo "No volumes found."

@@ -1,7 +1,7 @@
-Dev Stack - Complete Project Structure
+Code Buddy - Complete Project Structure
 =====================================
 
-dev-stack/
+code-buddy/
 │
 ├── 📄 docker-compose.yml          # Main orchestration file
 ├── 📄 setup.sh                    # Automated setup script

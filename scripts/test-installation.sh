@@ -4,7 +4,7 @@
 # Verifies that all services are working correctly
 
 echo "=========================================="
-echo "Testing Dev Stack Installation"
+echo "Testing Code Buddy Installation"
 echo "=========================================="
 echo ""
 

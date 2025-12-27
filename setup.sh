@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Dev Stack Setup Script
+# Code Buddy Setup Script
 # This script sets up the complete AI development stack
 
 set -e
 
 echo "=========================================="
-echo "Dev Stack Setup"
+echo "Code Buddy Setup"
 echo "=========================================="
 
 # Check for Docker

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Backup Script for Dev Stack Volumes
+# Backup Script for Code Buddy Volumes
 # Backs up all Docker volumes to ensure data persistence
 
 set -e
 
 BACKUP_DIR="${BACKUP_DIR:-backups/$(date +%Y%m%d_%H%M%S)}"
-BACKUP_NAME="dev-stack-backup-$(date +%Y%m%d_%H%M%S).tar.gz"
+BACKUP_NAME="code-buddy-backup-$(date +%Y%m%d_%H%M%S).tar.gz"
 
 echo "=========================================="
-echo "Dev Stack Volume Backup"
+echo "Code Buddy Volume Backup"
 echo "=========================================="
 echo ""
 
@@ -18,11 +18,11 @@ mkdir -p "$BACKUP_DIR"
 echo "Backup directory: $BACKUP_DIR"
 echo ""
 
-# Get all dev-stack volumes
-VOLUMES=$(docker volume ls -q | grep -E "^dev-stack_|^devstack_" || docker volume ls -q | grep -E ".*ollama-data|.*code-server|.*agent|.*mcp|.*qdrant|.*indexer|.*rag|.*rules|.*api-gateway|.*nginx" || true)
+# Get all code-buddy volumes
+VOLUMES=$(docker volume ls -q | grep -E "^code-buddy_" || docker volume ls -q | grep -E ".*code-buddy.*" || true)
 
 if [ -z "$VOLUMES" ]; then
-    echo "No dev-stack volumes found. Listing all volumes:"
+    echo "No code-buddy volumes found. Listing all volumes:"
     docker volume ls
     echo ""
     read -p "Enter volume names to backup (space-separated, or press Enter to exit): " VOLUMES
@@ -93,7 +93,7 @@ echo ""
 
 # Create manifest
 cat > "$BACKUP_DIR/MANIFEST.txt" <<EOF
-Dev Stack Backup Manifest
+Code Buddy Backup Manifest
 ========================
 Date: $(date)
 Backup Directory: $BACKUP_DIR

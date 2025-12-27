@@ -116,7 +116,7 @@ ollama list
 ### 2. Clone/Setup Project
 
 ```bash
-cd /home/aarshe/dev-stack
+cd /home/aarshe/code-buddy
 
 # Make scripts executable
 chmod +x setup.sh scripts/*.sh

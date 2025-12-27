@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Restore Script for Dev Stack Volumes
+# Restore Script for Code Buddy Volumes
 # Restores Docker volumes from backup
 
 set -e
@@ -21,7 +21,7 @@ if [ ! -d "$BACKUP_DIR" ]; then
 fi
 
 echo "=========================================="
-echo "Dev Stack Volume Restore"
+echo "Code Buddy Volume Restore"
 echo "=========================================="
 echo ""
 echo "Backup directory: $BACKUP_DIR"

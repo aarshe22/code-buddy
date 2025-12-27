@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# System Check Script for Dev Stack
+# System Check Script for Code Buddy
 # Verifies all prerequisites are met
 
 echo "=========================================="
-echo "Dev Stack System Check"
+echo "Code Buddy System Check"
 echo "=========================================="
 echo ""
 

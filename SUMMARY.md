@@ -1,4 +1,4 @@
-# Dev Stack - Complete Solution Summary
+# Code Buddy - Complete Solution Summary
 
 ## Overview
 
@@ -40,7 +40,7 @@ You now have a **complete, end-to-end, self-hosted AI development stack** runnin
 ## File Structure
 
 ```
-dev-stack/
+code-buddy/
 ├── docker-compose.yml          # Service orchestration
 ├── setup.sh                    # Main setup script
 ├── env.example                 # Environment template
@@ -81,7 +81,7 @@ dev-stack/
 
 ```bash
 # 1. Setup
-cd /home/aarshe/dev-stack
+cd /home/aarshe/code-buddy
 ./setup.sh
 
 # 2. Configure

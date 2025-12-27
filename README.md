@@ -1,4 +1,4 @@
-# AI Development Stack
+# Code Buddy - AI Development Stack
 
 A complete, self-hosted AI development environment built around Ollama, providing code generation, debugging, refactoring, and intelligent code assistance - all running locally on your workstation.
 
@@ -152,7 +152,7 @@ Ensure Ollama is running and accessible before starting the Docker stack.
 
 1. **Clone and setup**:
 ```bash
-cd /home/aarshe/dev-stack
+cd /home/aarshe/code-buddy
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -383,7 +383,7 @@ Edit `services/agent-orchestrator/agents/base_agent.py` and change the `model` v
 ### Project Structure
 
 ```
-dev-stack/
+code-buddy/
 ├── docker compose.yml          # Service orchestration
 ├── services/
 │   ├── agent-orchestrator/    # Main agent service

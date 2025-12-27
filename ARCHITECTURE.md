@@ -2,7 +2,7 @@
 
 ## System Overview
 
-The Dev Stack is a comprehensive, self-hosted AI development environment designed to run entirely on your local workstation. All components are containerized using Docker for isolation and portability.
+Code Buddy is a comprehensive, self-hosted AI development environment designed to run entirely on your local workstation. All components are containerized using Docker for isolation and portability.
 
 ## Component Architecture
 
@@ -182,7 +182,7 @@ workspace/
 
 ### Docker Network
 
-All services run on `dev-stack-network` (bridge network):
+All services run on `code-buddy-network` (bridge network):
 - Internal service-to-service communication
 - Isolated from host network
 - DNS resolution by service name

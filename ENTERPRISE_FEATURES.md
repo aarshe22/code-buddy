@@ -192,8 +192,8 @@ yo code
 
 # Choose:
 # - New Extension (TypeScript)
-# - Extension name: dev-stack-ai
-# - Identifier: dev-stack-ai
+# - Extension name: code-buddy-ai
+# - Identifier: code-buddy-ai
 # - Description: AI Development Assistant
 # - Initialize git: Yes
 ```
@@ -201,7 +201,7 @@ yo code
 ### Step 2: Extension Structure
 
 ```
-dev-stack-extension/
+code-buddy-extension/
 ├── src/
 │   ├── extension.ts          # Main extension entry
 │   ├── completion.ts         # Code completion provider
@@ -289,7 +289,7 @@ npm run compile
 vsce package
 
 # Install in Code-Server
-code-server --install-extension dev-stack-ai-0.0.1.vsix
+code-server --install-extension code-buddy-ai-0.0.1.vsix
 ```
 
 ## Comparison Matrix

@@ -22,7 +22,7 @@ curl http://localhost:11434/api/tags
 
 ```bash
 # Navigate to the project directory
-cd /home/aarshe/dev-stack
+cd /home/aarshe/code-buddy
 
 # Run the setup script
 ./setup.sh

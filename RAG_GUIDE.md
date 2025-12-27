@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Dev Stack includes a complete RAG (Retrieval Augmented Generation) system powered by Qdrant vector database. This allows you to:
+Code Buddy includes a complete RAG (Retrieval Augmented Generation) system powered by Qdrant vector database. This allows you to:
 
 - **Index your entire codebase** for semantic search
 - **Chat with your codebase** using natural language

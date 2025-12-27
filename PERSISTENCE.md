@@ -1,6 +1,6 @@
 # Data Persistence Guide
 
-This document explains how data persistence is configured in the Dev Stack to ensure no information is lost when containers are rebuilt.
+This document explains how data persistence is configured in Code Buddy to ensure no information is lost when containers are rebuilt.
 
 ## Volume Strategy
 
@@ -142,7 +142,7 @@ mkdir -p backups/$(date +%Y%m%d)
 
 # Backup all volumes
 docker run --rm \
-  -v dev-stack_ollama-data:/data \
+  -v code-buddy_ollama-data:/data \
   -v $(pwd)/backups/$(date +%Y%m%d):/backup \
   alpine tar czf /backup/ollama-data.tar.gz -C /data .
 
@@ -156,7 +156,7 @@ Or use a script:
 BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-for volume in $(docker volume ls -q | grep dev-stack); do
+for volume in $(docker volume ls -q | grep code-buddy); do
   echo "Backing up $volume..."
   docker run --rm \
     -v "$volume":/data \
@@ -172,7 +172,7 @@ echo "Backup complete: $BACKUP_DIR"
 ```bash
 # Restore a volume
 docker run --rm \
-  -v dev-stack_ollama-data:/data \
+  -v code-buddy_ollama-data:/data \
   -v $(pwd)/backups/20240101:/backup \
   alpine sh -c "cd /data && tar xzf /backup/ollama-data.tar.gz"
 ```
@@ -180,19 +180,19 @@ docker run --rm \
 ### List All Volumes
 
 ```bash
-docker volume ls | grep dev-stack
+docker volume ls | grep code-buddy
 ```
 
 ### Inspect Volume
 
 ```bash
-docker volume inspect dev-stack_ollama-data
+docker volume inspect code-buddy_ollama-data
 ```
 
 ### Remove Volume (WARNING: Deletes Data)
 
 ```bash
-docker volume rm dev-stack_ollama-data
+docker volume rm code-buddy_ollama-data
 ```
 
 ## Data Locations on Host
@@ -204,7 +204,7 @@ Docker volumes are stored in Docker's data directory:
 To find a specific volume:
 
 ```bash
-docker volume inspect dev-stack_ollama-data | grep Mountpoint
+docker volume inspect code-buddy_ollama-data | grep Mountpoint
 ```
 
 ## Migration
@@ -252,7 +252,7 @@ These are set in `docker-compose.yml` and point to mounted volumes.
 
 ### Volume Not Persisting
 
-1. Check volume exists: `docker volume ls | grep dev-stack`
+1. Check volume exists: `docker volume ls | grep code-buddy`
 2. Check volume mount: `docker inspect <container> | grep -A 10 Mounts`
 3. Verify volume is named (not anonymous)
 
