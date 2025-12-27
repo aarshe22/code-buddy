@@ -71,7 +71,7 @@ async def health_check():
         "ollama": await check_service(f"{OLLAMA_URL}/api/tags"),
         "code-indexer": await check_service(f"{CODE_INDEXER_URL}/health"),
         "rag-chat": await check_service(f"{RAG_CHAT_URL}/health"),
-        "qdrant": await check_service(f"{QDRANT_URL}/collections"),
+        "qdrant": await check_service(f"{QDRANT_URL}/"),
         "vscode-extension": await check_service(f"{VSCODE_EXTENSION_URL}/health"),
         "terminal-ai": await check_service(f"{TERMINAL_AI_URL}/health"),
     }
@@ -89,10 +89,13 @@ async def check_service(url: str) -> str:
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
-            if response.status_code == 200:
+            # Accept 200-299 status codes as healthy
+            if 200 <= response.status_code < 300:
                 return "healthy"
             return "unhealthy"
-    except:
+    except Exception as e:
+        # Log the error for debugging (but don't fail the health check)
+        logger.debug(f"Service check failed for {url}: {str(e)}")
         return "unreachable"
 
 
