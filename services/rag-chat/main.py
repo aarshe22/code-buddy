@@ -175,8 +175,7 @@ async def search_code(request: Request):
         
         if not query:
             raise HTTPException(status_code=400, detail="query parameter required")
-    """Search codebase for relevant code"""
-    try:
+        
         # Generate embedding for query
         query_embedding = await generate_query_embedding(query)
         
