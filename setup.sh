@@ -232,6 +232,10 @@ echo "=========================================="
 echo "Setup Complete!"
 echo "=========================================="
 echo ""
+# Load CODE_SERVER_PORT from .env if it exists
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | grep CODE_SERVER_PORT | xargs) 2>/dev/null || true
+fi
 CODE_SERVER_PORT=${CODE_SERVER_PORT:-8080}
 echo "Services are running:"
 echo "  - Web IDE (via Nginx): http://localhost"

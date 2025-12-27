@@ -15,11 +15,16 @@ services:
       - code-buddy-code-server-extensions:/home/coder/.local/share/code-server/extensions
       - code-buddy-code-server-logs:/home/coder/.local/share/code-server/logs
       - ./workspace:/home/coder/workspace
-      - ./code-server-config/settings.json:/home/coder/.config/code-server/settings.json:ro
     environment:
       - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - DEFAULT_WORKSPACE=/home/coder/workspace
+    entrypoint: |
+      sh -c "
+      mkdir -p /home/coder/.config/code-server &&
+      chmod -R 755 /home/coder/.config &&
+      exec dumb-init -- /usr/bin/code-server --bind-addr 0.0.0.0:8080
+      "
     # Expose Code-Server on all host IP addresses via configurable port
     # Accessible via: http://<host-ip>:${CODE_SERVER_PORT}
     # Also accessible via Nginx on port 80: http://<host-ip>
@@ -329,8 +334,10 @@ services:
     networks:
       - code-buddy-network
     depends_on:
-      - code-server
-      - api-gateway
+      code-server:
+        condition: service_started
+      api-gateway:
+        condition: service_started
 
 volumes:
   # Code-Server
