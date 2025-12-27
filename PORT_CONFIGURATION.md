@@ -2,12 +2,13 @@
 
 ## External Ports (Exposed to Host OS)
 
-Only **2 ports** are exposed to the host operating system:
+**3 ports** are exposed to the host operating system:
 
 | Port | Service | Purpose | Required |
 |------|---------|---------|----------|
 | **80** | Nginx | HTTP access to web IDE and API | ✅ Yes |
 | **443** | Nginx | HTTPS access (when configured) | ⚠️ Optional |
+| **${CODE_SERVER_PORT:-8080}** | Code-Server | Direct access to web IDE (all host IPs) | ⚠️ Optional (default: 8080) |
 
 ## Internal Ports (Docker Network Only)
 
@@ -15,7 +16,7 @@ All other services use `expose` (not `ports`), making them accessible **only** o
 
 | Service | Internal Port | Access Method |
 |---------|---------------|---------------|
-| Code-Server | 8080 | Via Nginx (port 80) |
+| Code-Server | 8080 | Via Nginx (port 80) or direct on port ${CODE_SERVER_PORT:-8080} (all host IPs) |
 | API Gateway | 9000 | Via Nginx (port 80/api) |
 | Agent Orchestrator | 8000 | Via API Gateway |
 | Rules Engine | 8001 | Via API Gateway |

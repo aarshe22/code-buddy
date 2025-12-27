@@ -182,7 +182,11 @@ ollama list
 See [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) for complete model recommendations.
 
 5. **Access the IDE**:
-Open `http://localhost` in your browser and login with your password.
+- Via Nginx (recommended): `http://<host-ip>` (port 80)
+- Direct access: `http://<host-ip>:${CODE_SERVER_PORT:-8080}` (default port 8080)
+- Accessible on all host IP addresses
+
+Login with your password from the `.env` file.
 
 ## Usage
 

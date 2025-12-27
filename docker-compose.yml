@@ -20,10 +20,11 @@ services:
       - PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-devstack123}
       - DEFAULT_WORKSPACE=/home/coder/workspace
-    # No external port - accessed via Nginx on internal network
-    # Remove port mapping to avoid conflicts. Access via http://localhost (Nginx)
-    expose:
-      - "8080"
+    # Expose Code-Server on all host IP addresses via configurable port
+    # Accessible via: http://<host-ip>:${CODE_SERVER_PORT}
+    # Also accessible via Nginx on port 80: http://<host-ip>
+    ports:
+      - "0.0.0.0:${CODE_SERVER_PORT:-8080}:8080"
     restart: unless-stopped
     networks:
       - dev-stack-network

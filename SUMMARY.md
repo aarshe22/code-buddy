@@ -147,9 +147,9 @@ With your 96GB VRAM, recommended models:
 
 ## Services & Ports
 
-- **Web IDE**: http://localhost (port 80)
+- **Web IDE**: http://localhost (port 80 via Nginx)
+- **Web IDE (direct)**: http://<host-ip>:${CODE_SERVER_PORT:-8080} (default 8080, all host IPs)
 - **API Gateway**: http://localhost/api (port 9000)
-- **Code-Server**: http://localhost:8080 (direct)
 - **Ollama**: http://localhost:11434 (host-native, no API key)
 
 Internal services (not exposed):

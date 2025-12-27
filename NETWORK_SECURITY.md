@@ -19,7 +19,7 @@ All other services use `expose` instead of `ports`, making them accessible only 
 
 | Service | Internal Port | Access Method |
 |---------|---------------|---------------|
-| Code-Server | 8080 | Via Nginx (port 80) |
+| Code-Server | 8080 | Via Nginx (port 80) or direct on port ${CODE_SERVER_PORT:-8080} (all host IPs) |
 | API Gateway | 9000 | Via Nginx (port 80) |
 | Agent Orchestrator | 8000 | Via API Gateway |
 | Rules Engine | 8001 | Via API Gateway |

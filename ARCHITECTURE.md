@@ -19,7 +19,7 @@ The Dev Stack is a comprehensive, self-hosted AI development environment designe
 
 #### Code-Server (Web IDE)
 - **Purpose**: Browser-based VS Code IDE
-- **Port**: 8080 (internal), 80 (via Nginx)
+- **Port**: 8080 (internal), 80 (via Nginx), ${CODE_SERVER_PORT:-8080} (direct, all host IPs)
 - **Features**:
   - Full VS Code functionality
   - Extension support
