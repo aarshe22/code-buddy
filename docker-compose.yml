@@ -31,8 +31,9 @@ services:
       - code-buddy-code-server-extensions:/home/coder/.local/share/code-server/extensions
       - code-buddy-code-server-logs:/home/coder/.local/share/code-server/logs
       - ./workspace:/home/coder/workspace
-      - ./code-server-config:/opt/code-buddy-config:ro
-      - ./scripts/setup-workspace.sh:/usr/local/bin/setup-workspace.sh:ro
+      - ./code-server-config/settings.json:/home/coder/.config/code-server/User/settings.json:ro
+      - ./code-server-config/config.yaml:/home/coder/.config/code-server/config.yaml:ro
+      - ./scripts/code-server-entrypoint.sh:/usr/local/bin/code-server-entrypoint.sh:ro
     environment:
       - PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
       - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-codebuddy123}
@@ -50,7 +51,7 @@ services:
     depends_on:
       code-server-init:
         condition: service_completed_successfully
-    command: ["--bind-addr", "0.0.0.0:8080"]
+    entrypoint: ["/usr/local/bin/code-server-entrypoint.sh"]
 
   # Agent Orchestrator - Main AI Agent Service
   agent-orchestrator:

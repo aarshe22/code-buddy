@@ -1,7 +1,8 @@
 {
   // Code Buddy - Global Settings (applied to all workspaces)
   "workbench.colorTheme": "Default Dark+",
-  "workbench.startupEditor": "welcomePage",
+  "workbench.startupEditor": "readme",
+  "workbench.welcome.enabled": true,
   
   // Editor Settings
   "editor.fontSize": 14,
