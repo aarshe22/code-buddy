@@ -19,14 +19,12 @@ A complete, self-hosted AI development environment built around Ollama, providin
 - **Rules Engine**: Enforce coding standards and best practices
 - **Docker-Based**: Clean, isolated, and portable deployment
 
-**See [COMPARISON.md](COMPARISON.md) for feature comparison with Cursor AI and Claude Code.**
-
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Nginx Reverse Proxy                  │
-│                    (Port 80/443)                        │
+│                    (Port 80/443)                         │
 └──────────────┬──────────────────────────────────────────┘
                │
     ┌──────────┴──────────┐
@@ -38,18 +36,18 @@ A complete, self-hosted AI development environment built around Ollama, providin
                           │
         ┌─────────────────┼─────────────────┐
         │                 │                 │
-┌───────▼──────┐  ┌──────▼──────┐
-│   Agent      │  │   Rules     │
-│ Orchestrator │  │   Engine    │
-│  (Port 8000) │  │  (Port 8001) │
-└───────┬──────┘  └──────────────┘
-        │
-        │ (via host.docker.internal)
-        │
-┌───────▼──────────────┐
-│   Ollama (Host)      │
-│   (Port 11434)       │
-│   No API Key         │
+┌───────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐
+│   Agent      │  │   Rules     │  │   Qdrant   │
+│ Orchestrator │  │   Engine    │  │  (Vector DB)│
+│  (Port 8000) │  │  (Port 8001) │  │  (Port 6333)│
+└───────┬──────┘  └──────────────┘  └──────┬──────┘
+        │                                  │
+        │ (via host.docker.internal)       │
+        │                                  │
+┌───────▼──────────────┐          ┌────────▼──────┐
+│   Ollama (Host)      │          │ Code Indexer │
+│   (Port 11434)       │          │  (Port 8002) │
+│   No API Key         │          └──────────────┘
 └──────────────────────┘
         │
     ┌───┴────┬──────────────┐
@@ -71,10 +69,8 @@ A complete, self-hosted AI development environment built around Ollama, providin
 - No API key required
 - Listens on all interfaces (0.0.0.0)
 
-See [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) for recommended models for your hardware.
-
 ### 2. Code-Server
-Web-based VS Code IDE. Accessible via browser, fully functional code editor.
+Web-based VS Code IDE. Accessible via browser, fully functional code editor. Accessible on all host IP addresses via configurable port (default: 8080).
 
 ### 3. Agent Orchestrator
 Main service coordinating AI agents:
@@ -123,68 +119,149 @@ Unified API interface for all services.
 
 ## Prerequisites
 
-- Ubuntu Linux (tested on 22.04+)
-- **Ollama installed and running on the host** (listening on 0.0.0.0:11434)
-- Docker and Docker Compose
-- NVIDIA GPU with drivers (for GPU acceleration)
-- At least 100GB free disk space
-- 256GB RAM (recommended for large models)
+### System Requirements
 
-### Installing Ollama on Host
+- **OS**: Ubuntu 20.04+ or similar Linux distribution
+- **CPU**: 8+ cores (64 cores recommended)
+- **RAM**: 64GB (256GB recommended)
+- **GPU**: NVIDIA GPU with 24GB+ VRAM (96GB recommended)
+- **Storage**: 200GB+ free space (SSD recommended)
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
 
-See [OLLAMA_SETUP.md](OLLAMA_SETUP.md) for complete setup instructions.
+### Required Software
 
-Quick setup:
-```bash
-# Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh
+1. **Docker and Docker Compose**
+   ```bash
+   # Install Docker
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sudo sh get-docker.sh
+   
+   # Install Docker Compose plugin
+   sudo apt-get update
+   sudo apt-get install docker-compose-plugin
+   ```
 
-# Configure to listen on all interfaces (no API key required)
-export OLLAMA_HOST=0.0.0.0:11434
+2. **NVIDIA Container Toolkit** (for GPU support)
+   ```bash
+   distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+   curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   sudo apt-get update
+   sudo apt-get install -y nvidia-container-toolkit
+   sudo nvidia-ctk runtime configure --runtime=docker
+   sudo systemctl restart docker
+   ```
 
-# Start Ollama service (or configure as systemd service)
-ollama serve
-```
+3. **Ollama** (must be installed on host, not in container)
+   ```bash
+   # Install Ollama
+   curl -fsSL https://ollama.com/install.sh | sh
+   
+   # Configure to listen on all interfaces
+   export OLLAMA_HOST=0.0.0.0:11434
+   
+   # Create systemd service for auto-start
+   sudo tee /etc/systemd/system/ollama.service > /dev/null <<EOF
+   [Unit]
+   Description=Ollama Service
+   After=network.target
+   
+   [Service]
+   Type=simple
+   User=$USER
+   Environment="OLLAMA_HOST=0.0.0.0:11434"
+   ExecStart=/usr/local/bin/ollama serve
+   Restart=always
+   RestartSec=3
+   
+   [Install]
+   WantedBy=multi-user.target
+   EOF
+   
+   sudo systemctl daemon-reload
+   sudo systemctl enable ollama
+   sudo systemctl start ollama
+   
+   # Verify
+   curl http://localhost:11434/api/tags
+   ```
 
-Ensure Ollama is running and accessible before starting the Docker stack.
+## Installation
 
-## Quick Start
+### 1. Clone and Setup
 
-1. **Clone and setup**:
 ```bash
 cd /home/aarshe/code-buddy
 chmod +x setup.sh
 ./setup.sh
 ```
 
-2. **Configure environment**:
-Edit `.env` file and set:
-- `CODE_SERVER_PASSWORD`: Password for web IDE
-- `GITHUB_TOKEN`: GitHub personal access token (optional)
-- `GITLAB_TOKEN`: GitLab personal access token (optional)
+### 2. Configure Environment
 
-3. **Start services**:
+Edit `.env` file:
+
 ```bash
-docker compose up -d
+nano .env
 ```
 
-4. **Pull Ollama models** (on the host):
+Required settings:
+- `CODE_SERVER_PASSWORD`: Set a strong password for web IDE
+- `CODE_SERVER_PORT`: Port for direct Code-Server access (default: 8080)
+
+Optional settings:
+- `GITHUB_TOKEN`: GitHub personal access token (for GitHub integration)
+- `GITLAB_TOKEN`: GitLab personal access token (for GitLab integration)
+- `OLLAMA_CODING_MODEL`: Coding model (default: deepseek-coder:33b)
+- `OLLAMA_REASONING_MODEL`: Reasoning model (default: qwen2.5:72b)
+- `OLLAMA_EMBEDDING_MODEL`: Embedding model (default: nomic-embed-text)
+
+### 3. Build and Start Services
+
 ```bash
-# Pull recommended models for your hardware
-ollama pull deepseek-coder:33b    # Coding model
-ollama pull llama3.2:90b          # Reasoning model
-ollama pull nomic-embed-text      # Embedding model
+# Build all services
+docker compose build
+
+# Start services
+docker compose up -d
+
+# Check status
+docker compose ps
+
+# View logs
+docker compose logs -f
+```
+
+### 4. Pull Ollama Models (on Host)
+
+For systems with 96GB VRAM, recommended models:
+
+```bash
+# Coding model (recommended)
+ollama pull deepseek-coder:33b
+
+# Reasoning model (recommended)
+ollama pull qwen2.5:72b
+
+# Embedding model (required for RAG)
+ollama pull nomic-embed-text
 
 # Verify installation
 ollama list
 ```
 
-See [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) for complete model recommendations.
+**Model Recommendations by Hardware:**
 
-5. **Access the IDE**:
-- Via Nginx (recommended): `http://<host-ip>` (port 80)
-- Direct access: `http://<host-ip>:${CODE_SERVER_PORT:-8080}` (default port 8080)
-- Accessible on all host IP addresses
+- **96GB VRAM**: `deepseek-coder:33b`, `qwen2.5:72b`, `nomic-embed-text`
+- **48GB VRAM**: `codellama:34b`, `llama3.1:70b`, `nomic-embed-text`
+- **24GB VRAM**: `codellama:13b`, `llama3.1:8b`, `nomic-embed-text`
+- **12GB VRAM**: `codellama:7b`, `llama3.1:3b`, `nomic-embed-text`
+
+### 5. Access the IDE
+
+- **Via Nginx** (recommended): `http://<host-ip>` (port 80)
+- **Direct access**: `http://<host-ip>:${CODE_SERVER_PORT:-8080}` (default port 8080)
+- **Accessible on all host IP addresses**
 
 Login with your password from the `.env` file.
 
@@ -200,8 +277,18 @@ curl -X POST http://localhost/api/index \
   -H "Content-Type: application/json" \
   -d '{}'
 
+# Index specific project
+curl -X POST http://localhost/api/index \
+  -H "Content-Type: application/json" \
+  -d '{"project_path": "my-project"}'
+
 # Check indexing status
 curl http://localhost/api/index/status
+
+# Force reindex
+curl -X POST http://localhost/api/index \
+  -H "Content-Type: application/json" \
+  -d '{"force_reindex": true}'
 ```
 
 ### Chat with Your Codebase
@@ -213,7 +300,8 @@ curl -X POST http://localhost/api/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "How does authentication work in this codebase?",
-    "project_path": "my-project"
+    "project_path": "my-project",
+    "max_results": 5
   }'
 ```
 
@@ -226,11 +314,10 @@ curl -X POST http://localhost/api/search \
   -H "Content-Type: application/json" \
   -d '{
     "query": "user authentication function",
+    "project_path": "my-project",
     "limit": 10
   }'
 ```
-
-See [RAG_GUIDE.md](RAG_GUIDE.md) for complete RAG documentation.
 
 ### Code Generation
 
@@ -242,7 +329,10 @@ curl -X POST http://localhost/api/generate \
   -d '{
     "prompt": "Create a REST API endpoint for user authentication",
     "language": "python",
-    "output_path": "api/auth.py"
+    "output_path": "api/auth.py",
+    "context": {
+      "project_path": "my-project"
+    }
   }'
 ```
 
@@ -254,7 +344,10 @@ Review code for issues:
 curl -X POST http://localhost/api/review \
   -H "Content-Type: application/json" \
   -d '{
-    "file_path": "src/main.py"
+    "file_path": "src/main.py",
+    "context": {
+      "project_path": "my-project"
+    }
   }'
 ```
 
@@ -267,7 +360,10 @@ curl -X POST http://localhost/api/debug \
   -H "Content-Type: application/json" \
   -d '{
     "file_path": "src/main.py",
-    "error_message": "IndexError: list index out of range"
+    "error_message": "IndexError: list index out of range",
+    "context": {
+      "project_path": "my-project"
+    }
   }'
 ```
 
@@ -281,7 +377,10 @@ curl -X POST http://localhost/api/refactor \
   -d '{
     "file_path": "src/main.py",
     "refactor_type": "extract_function",
-    "target": "complex_function"
+    "target": "complex_function",
+    "context": {
+      "project_path": "my-project"
+    }
   }'
 ```
 
@@ -295,7 +394,8 @@ curl -X POST http://localhost/api/task \
   -d '{
     "task": "Add error handling to the authentication function",
     "context": {
-      "file_path": "api/auth.py"
+      "file_path": "api/auth.py",
+      "project_path": "my-project"
     }
   }'
 ```
@@ -306,7 +406,15 @@ curl -X POST http://localhost/api/task \
 
 1. Create a GitHub personal access token with `repo` scope
 2. Create a GitLab personal access token with `api` scope
-3. Add tokens to `.env` file
+3. Add tokens to `.env` file:
+   ```
+   GITHUB_TOKEN=your_token_here
+   GITLAB_TOKEN=your_token_here
+   ```
+4. Restart services:
+   ```bash
+   docker compose restart mcp-github mcp-gitlab
+   ```
 
 ### Usage
 
@@ -357,26 +465,137 @@ curl http://localhost/api/rules?language=python
 curl -X POST http://localhost/api/rules/reload
 ```
 
-## Model Selection
+## Network & Security
 
-With 96GB VRAM, you can run large models:
+### Port Configuration
 
-### Recommended Models
+**External Ports (Exposed to Host):**
+- **Port 80**: Nginx (HTTP access to web IDE and API)
+- **Port 443**: Nginx (HTTPS access, when configured)
+- **Port ${CODE_SERVER_PORT:-8080}**: Code-Server direct access (all host IPs)
 
-- **llama3.2:90b** - Best quality, requires ~50GB VRAM
-- **llama3.2:70b** - High quality, requires ~40GB VRAM
-- **codellama:34b** - Code-focused, requires ~20GB VRAM
-- **deepseek-coder:33b** - Excellent for code, requires ~20GB VRAM
+**Internal Ports (Docker Network Only):**
+All other services use internal Docker network for communication:
+- API Gateway: 9000
+- Agent Orchestrator: 8000
+- Rules Engine: 8001
+- Code Indexer: 8002
+- RAG Chat: 8003
+- Terminal AI: 8004
+- MCP GitHub: 3001
+- MCP GitLab: 3002
+- Qdrant: 6333, 6334
 
-### Pulling Models
+### Security Features
+
+- All services run in isolated Docker containers
+- Internal services not exposed to host network
+- No external network access required (except for model downloads)
+- GitHub/GitLab tokens stored in `.env` (not in code)
+- Workspace isolated from host system
+- Password authentication for Code-Server
+
+## Data Persistence
+
+All configuration and ephemeral data is persisted in Docker named volumes:
+
+- **Ollama**: Models stored in `~/.ollama/` on host
+- **Code-Server**: Extensions, settings, and logs preserved
+- **Agent Data**: Agent state, cache, and logs persist
+- **Qdrant**: Vector database and indexes persist
+- **All Services**: Logs, cache, and state data persist
+
+### Backup & Restore
 
 ```bash
-ollama pull <model-name>  # Run on host
+# Backup all volumes
+./scripts/backup-volumes.sh
+
+# Restore from backup
+./scripts/restore-volumes.sh backups/20240101_120000
+
+# List volumes
+./scripts/list-volumes.sh
 ```
 
-### Changing Model
+## Troubleshooting
 
-Edit `services/agent-orchestrator/agents/base_agent.py` and change the `model` variable.
+### GPU Not Detected
+
+```bash
+# Check NVIDIA runtime
+docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+
+# Install NVIDIA Container Toolkit
+# See: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+```
+
+### Ollama Not Accessible from Containers
+
+1. Verify Ollama is running on host:
+   ```bash
+   curl http://localhost:11434/api/tags
+   ```
+
+2. Check OLLAMA_HOST is set:
+   ```bash
+   echo $OLLAMA_HOST
+   # Should output: 0.0.0.0:11434
+   ```
+
+3. Test from container:
+   ```bash
+   docker run --rm --add-host=host.docker.internal:host-gateway \
+     curlimages/curl:latest \
+     curl http://host.docker.internal:11434/api/tags
+   ```
+
+### Out of Memory
+
+- Use smaller models
+- Reduce `OLLAMA_KEEP_ALIVE` in `.env`
+- Limit concurrent requests
+- Check GPU memory: `nvidia-smi`
+
+### Services Not Starting
+
+```bash
+# Check logs
+docker compose logs
+
+# Restart services
+docker compose restart
+
+# Rebuild images
+docker compose build --no-cache
+```
+
+### Port Conflicts
+
+```bash
+# Check what's using ports
+sudo lsof -i :80
+sudo lsof -i :8080
+
+# Change ports in .env or docker-compose.yml
+```
+
+## Performance Tuning
+
+### For High-End Systems (96GB VRAM)
+
+1. **Model Selection**: Use 70B-90B parameter models
+2. **Batch Size**: Increase in Ollama config
+3. **Keep Alive**: Set to 24h to keep models loaded
+4. **Concurrent Requests**: Can handle multiple simultaneous requests
+
+### Optimization Tips
+
+- Keep models loaded in memory (`OLLAMA_KEEP_ALIVE=24h`)
+- Use quantized models for faster inference
+- Enable GPU acceleration
+- Use SSD storage for workspace
+- Monitor GPU usage: `nvidia-smi`
 
 ## Development
 
@@ -384,13 +603,17 @@ Edit `services/agent-orchestrator/agents/base_agent.py` and change the `model` v
 
 ```
 code-buddy/
-├── docker compose.yml          # Service orchestration
+├── docker-compose.yml          # Service orchestration
 ├── services/
 │   ├── agent-orchestrator/    # Main agent service
 │   ├── mcp-github/            # GitHub MCP server
 │   ├── mcp-gitlab/            # GitLab MCP server
 │   ├── rules-engine/          # Rules management
-│   └── api-gateway/           # API gateway
+│   ├── api-gateway/           # API gateway
+│   ├── code-indexer/          # Code indexing service
+│   ├── rag-chat/              # RAG chat service
+│   ├── terminal-ai/           # Terminal AI assistant
+│   └── vscode-extension-server/ # VS Code extension server
 ├── nginx/                      # Reverse proxy config
 ├── rules/                      # Coding rules
 ├── workspace/                  # Your code workspace
@@ -407,86 +630,7 @@ code-buddy/
 
 1. Create new service in `services/`
 2. Implement MCP protocol
-3. Add to `docker compose.yml`
-
-## Troubleshooting
-
-### GPU Not Detected
-
-```bash
-# Check NVIDIA runtime
-docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
-
-# Install NVIDIA Container Toolkit
-# See: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
-```
-
-### Out of Memory
-
-- Use smaller models
-- Reduce `OLLAMA_KEEP_ALIVE` in `.env`
-- Limit concurrent requests
-
-### Services Not Starting
-
-```bash
-# Check logs
-docker compose logs
-
-# Restart services
-docker compose restart
-
-# Rebuild images
-docker compose build --no-cache
-```
-
-## Performance Tuning
-
-### For 96GB VRAM System
-
-1. **Model Selection**: Use 70B-90B parameter models
-2. **Batch Size**: Increase in Ollama config
-3. **Keep Alive**: Set to 24h to keep models loaded
-4. **Concurrent Requests**: Can handle multiple simultaneous requests
-
-### Optimization Tips
-
-- Keep models loaded in memory (`OLLAMA_KEEP_ALIVE=24h`)
-- Use quantized models for faster inference
-- Enable GPU acceleration
-- Use SSD storage for workspace
-
-## Data Persistence
-
-All configuration and ephemeral data is persisted in Docker named volumes:
-
-- **Models & Cache**: Ollama models and cache persist across rebuilds
-- **Code-Server**: Extensions, settings, and logs are preserved
-- **Agent Data**: Agent state, cache, and logs persist
-- **Qdrant**: Vector database and indexes persist
-- **All Services**: Logs, cache, and state data persist
-
-See [PERSISTENCE.md](PERSISTENCE.md) for complete details.
-
-### Backup & Restore
-
-```bash
-# Backup all volumes
-./scripts/backup-volumes.sh
-
-# Restore from backup
-./scripts/restore-volumes.sh backups/20240101_120000
-
-# List volumes
-./scripts/list-volumes.sh
-```
-
-## Security
-
-- All services run in isolated Docker containers
-- No external network access required (except for model downloads)
-- GitHub/GitLab tokens stored in `.env` (not in code)
-- Workspace isolated from host system
+3. Add to `docker-compose.yml`
 
 ## License
 
@@ -503,23 +647,11 @@ For issues, check:
 2. Health endpoint: `http://localhost/api/health`
 3. Ollama status: `ollama list` (on host)
 
-## RAG Features
-
-The stack includes a complete RAG system:
-
-- **Codebase Indexing**: Automatically index your entire codebase
-- **Semantic Search**: Find code by meaning, not just keywords
-- **Context-Aware Agents**: Agents automatically use codebase context
-- **Codebase Chat**: Ask questions about your code in natural language
-
-See [RAG_GUIDE.md](RAG_GUIDE.md) for detailed documentation.
-
 ## Roadmap
 
 - [x] Advanced codebase indexing (RAG)
-- [ ] Multi-model support (run different models for different tasks)
+- [x] Multi-model support
 - [ ] Fine-tuning interface
 - [ ] Team collaboration features
 - [ ] Custom agent creation UI
 - [ ] Performance monitoring dashboard
-
